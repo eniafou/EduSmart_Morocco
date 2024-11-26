@@ -1,1 +1,12 @@
 /edusmart/edu-env
+/edusmart/.env
+
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+
+
+# Jupyter Notebook
+.ipynb_checkpoints/
