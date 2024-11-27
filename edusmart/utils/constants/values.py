@@ -1,2 +1,1 @@
-openai_key = "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"
 path_smcour = "C:/Users/Reda NASSIF/Documents/GitHub/EduSmart_Morocco/edusmart/database/Lycée/1_bac/sci_math/math/notion_de_logique/"
