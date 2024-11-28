@@ -4,8 +4,8 @@ import random
 from openai import OpenAI
 from dotenv import load_dotenv
 import json
-from pylatex import Document, Section, Subsection, Command, Itemize, NoEscape
-from pylatex.utils import escape_latex
+#from pylatex import Document, Section, Subsection, Command, Itemize, NoEscape
+#from pylatex.utils import escape_latex
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[0]))
