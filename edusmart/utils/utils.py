@@ -4,6 +4,8 @@ import random
 from openai import OpenAI
 from dotenv import load_dotenv
 import json
+import pickle
+import numpy as np
 #from pylatex import Document, Section, Subsection, Command, Itemize, NoEscape
 #from pylatex.utils import escape_latex
 import sys
@@ -16,12 +18,49 @@ import constants.names as cn
 load_dotenv()
 client = OpenAI()
 
-def get_exo_examples_from_dict():
+def load_embeddings(file_path):
     """
-    load a .txt file containing an exercice, its solution and a some meta data all in the json format.
+    Load embeddings from a pickle file.
     """
-    pass
+    try:
+        with open(file_path, 'rb') as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        print(f"Error: File not found at {file_path}")
+        return {}
+def cosine_similarity(vec1, vec2):
+    """
+    Calculate the cosine similarity between two vectors.
+    """
+    dot_product = np.dot(vec1, vec2)
+    norm_vec1 = np.linalg.norm(vec1)
+    norm_vec2 = np.linalg.norm(vec2)
+    if norm_vec1 == 0 or norm_vec2 == 0:
+        return 0.0
+    return dot_product / (norm_vec1 * norm_vec2)
 
+def get_similar_exo_cours(level = "lycee", year = "1_bac" , branch = "sci_math" , subject =  "math", lesson = "notion_de_logique", num_example_exo = 10):
+    """
+    load simple .txt file containing an exercice and its solution
+    """
+    full_path_exo_txt = "./database/" + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + "/exercices/embeddings.pkl"
+    full_path_cour_txt = "./database/" + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + "/cours/embeddings.pkl"
+    cour_embeddings = load_embeddings(full_path_cour_txt)
+    exo_embeddings = load_embeddings(full_path_exo_txt)
+
+    simcours = {}
+    for cours_name, cours_embedding in cour_embeddings.items():
+        similarities = [
+            (exo_name, cosine_similarity(cours_embedding, exo_embedding))
+            for exo_name, exo_embedding in exo_embeddings.items()
+        ]
+        # Sort by similarity in descending order and take top N
+        top_similar = sorted(similarities, key=lambda x: x[1], reverse=True)[:num_example_exo]
+        simcours[cours_name] = [name for name, _ in top_similar]
+    return simcours  
+
+
+    
 def get_exo_examples_from_txt(level, year, branch, subject, lesson, num_example_exo = 3):
     """
     load simple .txt file containing an exercice and its solution
@@ -84,6 +123,9 @@ def generate_general_qcm(level, year, branch, subject, lesson, difficulty, num_q
         response_format = { "type": "json_object" }
     )
     return json.loads(completion.choices[0].message.content)
+
+
+
 def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
     """
     Convert QCM data to a formatted HTML file with properly separated text and LaTeX
