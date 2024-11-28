@@ -1,5 +1,7 @@
 /edusmart/edu-env
 .env
+graveyard.py
+
 # Python
 *.pyc
 *.pyo

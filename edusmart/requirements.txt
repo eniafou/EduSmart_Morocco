@@ -96,5 +96,5 @@ wcwidth==0.2.13
 webcolors==24.11.1
 webencodings==0.5.1
 websocket-client==1.8.0
-openai[datalib]==0.27.0  # Update to the latest version if needed
-numpy==1.24.3            # Check for the latest compatible version
+openai[datalib]==1.55.1
+numpy==2.1.3

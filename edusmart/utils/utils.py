@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 import json
 import pickle
 import numpy as np
-#from pylatex import Document, Section, Subsection, Command, Itemize, NoEscape
-#from pylatex.utils import escape_latex
+
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[0]))
+
 import constants.values as cv
 import constants.prompts as pmt
 import constants.names as cn
@@ -28,6 +28,8 @@ def load_embeddings(file_path):
     except FileNotFoundError:
         print(f"Error: File not found at {file_path}")
         return {}
+
+
 def cosine_similarity(vec1, vec2):
     """
     Calculate the cosine similarity between two vectors.
@@ -39,94 +41,88 @@ def cosine_similarity(vec1, vec2):
         return 0.0
     return dot_product / (norm_vec1 * norm_vec2)
 
-def get_similar_exo_cours(level = "lycee", year = "1_bac" , branch = "sci_math" , subject =  "math", lesson = "notion_de_logique", num_example_exo = 10):
+
+def get_similar_exo_cours(level, year, branch, subject, lesson):
     """
-    load simple .txt file containing an exercice and its solution
+    Create a dictionary of similar exos for each sous-cours in the lesson.
+    The keys are the names of the sous-cours and the values are lists of names of similar exos.
     """
-    full_path_exo_txt = "./database/" + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + "/exercices/embeddings.pkl"
-    full_path_cour_txt = "./database/" + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + "/cours/embeddings.pkl"
-    cour_embeddings = load_embeddings(full_path_cour_txt)
+    full_path_exo_txt = cv.ROOT_DATABASE_PATH + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + cv.EXO_PATH_EMBEDDING_SUFFIX
+    full_path_cour_txt = cv.ROOT_DATABASE_PATH + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + cv.SOUS_COURS_PATH_EMBEDDING_SUFFIX
+    sous_cour_embeddings = load_embeddings(full_path_cour_txt)
     exo_embeddings = load_embeddings(full_path_exo_txt)
 
-    simcours = {}
-    for cours_name, cours_embedding in cour_embeddings.items():
+    sim_sous_cours = {}
+    for sous_cours_name, sous_cours_embedding in sous_cour_embeddings.items():
         similarities = [
-            (exo_name, cosine_similarity(cours_embedding, exo_embedding))
+            (exo_name, cosine_similarity(sous_cours_embedding, exo_embedding))
             for exo_name, exo_embedding in exo_embeddings.items()
         ]
         # Sort by similarity in descending order and take top N
-        top_similar = sorted(similarities, key=lambda x: x[1], reverse=True)[:num_example_exo]
-        simcours[cours_name] = [name for name, _ in top_similar]
-    return simcours  
+        top_similar = sorted(similarities, key=lambda x: x[1], reverse=True)[:cv.NUM_SIMILARITY_EXO]
+        sim_sous_cours[sous_cours_name] = [name for name, _ in top_similar]
+    return sim_sous_cours  
 
 
-    
-def get_exo_examples_from_txt(level, year, branch, subject, lesson, num_example_exo = 3):
+def generate_from_prompt_json(prompt):
     """
-    load simple .txt file containing an exercice and its solution
+    Generate text from a prompt using the OpenAI API.
+    The output is python string in the format of a JSON object.
     """
-    full_path_exo_txt = "./database/" + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + "/exercices/"
-    all_exos = os.listdir(full_path_exo_txt)
-    selected_exos = random.sample(all_exos, num_example_exo)
-    output = []
-    for exo in selected_exos:
-        try:
-            with open(full_path_exo_txt + exo, 'r') as file:
-                output.append(file.read())
-        except FileNotFoundError:
-            print(f"The file at {full_path_exo_txt} was not found.")
-    return output
-
-
-def generate_quiz_pdf(data, include_correct_answers=False, output_file="quiz.pdf"):
-    # Initialize the document
-    doc = Document()
-
-    # Add a title
-    doc.preamble.append(Command("title", "Quiz"))
-    doc.preamble.append(Command("author", "Generated Quiz"))
-    doc.preamble.append(Command("date", NoEscape(r"\today")))
-    doc.append(NoEscape(r"\maketitle"))
-
-    # Loop through questions and add to the document
-    for idx, item in enumerate(data['questions']):
-        question = item['question']
-        options = item['options']
-        correct_answer = item['correct_answer']
-
-        # Add question as a subsection
-        with doc.create(Section(f"Question {idx + 1}")):
-            doc.append(NoEscape(question))  # Use NoEscape to handle LaTeX
-            doc.append("\n\n")
-
-            # Add options as an itemized list
-            with doc.create(Itemize()) as itemize:
-                for option in options:
-                    itemize.add_item(NoEscape(option))
-
-            if include_correct_answers:
-                doc.append(NoEscape(f"\n\n\\textbf{{Correct Answer: {escape_latex(correct_answer)}}}"))
-    
-    # Generate the PDF
-    doc.generate_pdf(output_file, clean_tex=False)
-
-
-def generate_general_qcm(level, year, branch, subject, lesson, difficulty, num_questions):
-    example_exos = get_exo_examples_from_txt(level, year, branch, subject, lesson, cv.num_example_exo)
-    example_exos = "\n\n".join(example_exos)
-    prompt = pmt.PROMPT_QCM_GENERAL_SCI.format(5,f"{cn.level_mapping[level]} {cn.year_mapping[year]} {cn.branch_mapping[branch]} Maroc", cn.subject_mapping[subject], cn.lesson_mapping[lesson], difficulty, example_exos)
     completion = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=cv.OPENAI_MODEL,
         messages=[
             {"role": "user", "content": prompt}
         ],
         response_format = { "type": "json_object" }
     )
-    return json.loads(completion.choices[0].message.content)
+    return completion.choices[0].message.content
+
+def get_random_exo_examples_from_list(full_path_exos, exos_list):
+    """
+    Notes:
+    Need handling unvalid values for cv.NUM_PRMPT_EXO
+    """
+    if cv.NUM_PRMPT_EXO < len(exos_list):
+        selected_exos = random.sample(exos_list, cv.NUM_PRMPT_EXO)
+    else:
+        selected_exos = exos_list
+    output = []
+    for exo in selected_exos:
+        try:
+            with open(full_path_exos + exo + ".txt", 'r') as file:
+                output.append(file.read())
+        except FileNotFoundError:
+            print(f"The file at {full_path_exos} was not found.")
+    return output
+def load_sous_cours(sous_cours_path):
+    try:
+        with open(sous_cours_path, 'r') as file:
+            return(file.read())
+    except FileNotFoundError:
+        print(f"The file at {sous_cours_path} was not found.")
+
+
+def generate_general_qcm_from_cours_parties(level, year, branch, subject, lesson, difficulty, num_questions):
+    sim_sous_cours = get_similar_exo_cours(level, year, branch, subject, lesson)
+    data = {"data":[]}
+    full_path_cours = cv.ROOT_DATABASE_PATH + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson
+
+    for sous_cours_name in sim_sous_cours:
+        sous_cours = load_sous_cours(full_path_cours + "/cours/" + sous_cours_name + ".txt")
+        example_exos = get_random_exo_examples_from_list(full_path_cours + "/exercices/", sim_sous_cours[sous_cours_name])
+        prompt = pmt.PROMPT_QCM_GENERAL_WITH_LESSON_SCI.format(num_questions,f"{cn.level_mapping[level]} {cn.year_mapping[year]} {cn.branch_mapping[branch]} Maroc", cn.subject_mapping[subject], cn.lesson_mapping[lesson], difficulty, sous_cours,example_exos)
+        response = generate_from_prompt_json(prompt)
+        quizz = json.loads(response)["data"]
+        sous_cours_quizz = {"sous_cours_name": sous_cours_name, "content": quizz}
+        data["data"].append(sous_cours_quizz)
+    return data
+
 
 
 
 def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
+
     """
     Convert QCM data to a formatted HTML file with properly separated text and LaTeX
     """
@@ -218,27 +214,29 @@ def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
         return fix_latex(option)
 
     # Add each question
-    for i, item in enumerate(qcm_data['data'], 1):
-        question = fix_latex(item['question'])
-        
-        html_content += f"""
-        <div class="question">
-            <div class="question-text">Question {i}:</div>
-            <div class="question-content">{question}</div>
-            <div class="options">
-        """
-        
-        # Add options
-        for option in item['options']:
-            processed_option = process_option(option)
-            html_content += f'<div class="option">{processed_option}</div>'
-        
-        # Add correct answer
-        html_content += f"""
+    for sous_cours in qcm_data['data']:
+        html_content += f"<h2>{sous_cours['sous_cours_name']}</h2>"
+        for i, item in enumerate(sous_cours['content'], 1):
+            question = fix_latex(item['question'])
+            
+            html_content += f"""
+            <div class="question">
+                <div class="question-text">Question {i}:</div>
+                <div class="question-content">{question}</div>
+                <div class="options">
+            """
+            
+            # Add options
+            for option in item['options']:
+                processed_option = process_option(option)
+                html_content += f'<div class="option">{processed_option}</div>'
+            
+            # Add correct answer
+            html_content += f"""
+                </div>
+                <div class="correct-answer">Correct Answer: {item['correct_answer']}</div>
             </div>
-            <div class="correct-answer">Correct Answer: {item['correct_answer']}</div>
-        </div>
-        """
+            """
     
     html_content += """
     </body>
@@ -250,4 +248,36 @@ def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
         f.write(html_content)
     
     print(f"QCM has been saved to {output_file}")
+
+
+
+
+
+
+
+### Old API
+def get_random_exo_examples(full_path_exo):
+    """
+    load simple .txt file containing an exercice and its solution
+    """
+    
+    all_exos = os.listdir(full_path_exo)
+    selected_exos = random.sample(all_exos, cv.NUM_PRMPT_EXO)
+    output = []
+    for exo in selected_exos:
+        try:
+            with open(full_path_exo + exo, 'r') as file:
+                output.append(file.read())
+        except FileNotFoundError:
+            print(f"The file at {full_path_exo} was not found.")
+    return output
+
+
+def generate_general_qcm_from_cours(level, year, branch, subject, lesson, difficulty, num_questions):
+    full_path_exos = cv.ROOT_DATABASE_PATH + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + "/exercices/"
+    example_exos = get_random_exo_examples(full_path_exos)
+    example_exos = "\n\n".join(example_exos)
+    prompt = pmt.PROMPT_QCM_GENERAL_SCI.format(num_questions,f"{cn.level_mapping[level]} {cn.year_mapping[year]} {cn.branch_mapping[branch]} Maroc", cn.subject_mapping[subject], cn.lesson_mapping[lesson], difficulty, example_exos)
+    response = generate_from_prompt_json(prompt)
+    return json.loads(response)
 
