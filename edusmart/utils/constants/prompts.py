@@ -70,3 +70,32 @@ Texte du cours : {}
 Exemples d'exercices reliés au cours : {}
 
 """
+
+
+promt_course_generation = """
+Vous êtes un créateur de contenu éducatif chargé de concevoir un cours personnalisé basé sur les résultats d’un quiz d’un étudiant.  
+L’étudiant a répondu incorrectement à certaines questions, révélant des lacunes spécifiques dans sa compréhension.  
+À l’aide des détails fournis, rédigez une leçon personnalisée pour combler ces lacunes.
+
+Votre réponse doit être en format JSON avec les champs ci-dessous :  
+
+{
+  "Titre": "Le titre du cours, précisant la partie concernée",
+  "Leçon proposée et exemples": "Une leçon personnalisée traitant les lacunes de l'étudiant, incluant des exemples. Le leçon doist être en format LaTeX. Utilisez des sauts de ligne appropriés et vérifiez les erreurs communes en LaTeX (par exemple, absence de $ pour les mathématiques, sauts de ligne incorrects, etc.)."
+}
+ 
+Directives :  
+- Adaptez la leçon au niveau scolaire et à la matière de l’étudiant.  
+- Concentrez-vous sur les sujets liés aux questions incorrectes.  
+- Rédigez dans un langage simple et clair.  
+- Veillez à une gestion correcte de la syntaxe LaTeX, et notons que ce latex va etre le inpu pour une fonction qui genere un ficier HTML  ,notamment pour les expressions mathématiques, les sauts de ligne et l’échappement des caractères spéciaux.
+
+
+
+Détails fournis :  
+- Niveau scolaire : {}  
+- Matière : {}  
+- Section du cours : {}  
+- Questions incorrectes : {} 
+
+"""

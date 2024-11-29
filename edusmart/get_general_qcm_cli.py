@@ -6,7 +6,7 @@ def main(level, year, branch, subject, lesson, difficulty, num_questions):
     qcm_data = generate_general_qcm_from_cours_parties(level, year, branch, subject, lesson, difficulty, num_questions) #json.loads(cv.example_generated_qcm_v2) #
     # qcm_data =  generate_general_qcm_from_cours(level, year, branch, subject, lesson, difficulty, num_questions) #json.loads(cv.example_generated_qcm)
     print(qcm_data)
-    save_qcm_to_html(qcm_data, output_file="qcm_output11.html")
+    save_qcm_to_html(qcm_data, output_file="qcm_output_reda_test.html")
 
 
 if __name__ == "__main__":

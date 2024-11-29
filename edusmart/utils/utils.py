@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import json
 import pickle
 import numpy as np
-
+import json
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[0]))
@@ -248,3 +248,37 @@ def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
         f.write(html_content)
     
     print(f"QCM has been saved to {output_file}")
+
+
+
+############ Cours generation Based on wrong answers ##################################
+def compare_answers(input_data):
+    results = {}
+
+    for course in input_data['answers']:
+        sous_cours_name = course['sous_cours_name']
+        user_answers = course['answers']
+        
+        # Find the corresponding qcm content
+        qcm_content = next((item for item in input_data['qcm'] if item['sous_cours_name'] == sous_cours_name), None)
+        
+        if qcm_content:
+            for i, question in enumerate(qcm_content['content']):
+                correct_answer = question['correct_answer']
+                user_answer_index = user_answers[i]
+                
+                # Convert user answer index to corresponding option letter (A, B, C, D)
+                user_answer_letter = chr(65 + user_answer_index)  # 65 is ASCII for 'A'
+                
+                if user_answer_letter != correct_answer:
+                    if sous_cours_name not in results:
+                        results[sous_cours_name] = []
+                    results[sous_cours_name].append(question['question'])
+    
+    # Convert results to the desired output format
+    formatted_results = [
+        {"sous_cours_name": key, "question": value}
+        for key, value in results.items()
+    ]
+    
+    return formatted_results
