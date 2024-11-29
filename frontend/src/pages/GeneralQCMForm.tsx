@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 
 type Level = "lycee" | "college" | "primaire";
 type Difficulty = "Facile" | "Moyen" | "Difficile";
@@ -15,50 +15,7 @@ interface FormData {
   num_questions: number;
 }
 
-const generatedQcmData = [
-  {
-    sous_cours_name: 'Opérations sur les propositions',
-    content: [
-      {
-        question: 'La négation de la proposition $(\\forall x \\in \\mathbb{R}); x^2 \\geq 0$ est :',
-        options: [
-          'A - $(\\exists x \\in \\mathbb{R}); x^2 < 0$',
-          'B - $(\\forall x \\in \\mathbb{R}); x^2 < 0$',
-          'C - $(\\exists x \\in \\mathbb{R}); x^2 \\geq 0$',
-          'D - $(\\forall x \\in \\mathbb{R}); x^2 > 0$',
-        ],
-        correct_answer: 'A',
-      },
-      {
-        question: 'Quelle est la forme correcte de la négation de la proposition $P: (\\exists x \\in \\mathbb{R}); \\sin x = 2$ ?',
-        options: [
-          'A - $(\\forall x \\in \\mathbb{R}); \\sin x \\neq 2$',
-          'B - $(\\exists x \\in \\mathbb{R}); \\sin x \\neq 2$',
-          'C - $(\\forall x \\in \\mathbb{R}); \\sin x = 2$',
-          'D - $(\\exists x \\in \\mathbb{R}); \\sin x = 2$',
-        ],
-        correct_answer: 'A',
-      },
-    ],
-  },
-  {
-    sous_cours_name: 'Lois logiques et raisonnements',
-    content: [
-      {
-        question: 'Si $P \\implies Q$ est vrai, alors :',
-        options: [
-          'A - $P$ et $Q$ sont vrais',
-          'B - $P$ est faux ou $Q$ est vrai',
-          'C - $P$ est vrai et $Q$ est faux',
-          'D - $P$ et $Q$ sont faux',
-        ],
-        correct_answer: 'B',
-      },
-    ],
-  },
-];
-
-const GeneralQCMForm = ({ setQcmData }: any) => {
+const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => {
   const navigate = useNavigate();
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
@@ -101,7 +58,7 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
   const handlePrev = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const handleSubmit = async () => {
-    setLoading(true); // Set loading to true before starting the request
+    setLoading(true);
     try {
       const response = await axios.post(
         "http://127.0.0.1:5000/create_general_qcm",
@@ -109,14 +66,14 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
       );
       setQcmData(response.data);
       navigate("/qcm");
-      console.log("Server response:", response.data);
     } catch (error) {
       console.error("Error submitting answers:", error);
     } finally {
-      setLoading(false); // Set loading to false after the request is complete
+      setLoading(false);
     }
   };
-  const handleChange = (key: keyof FormData, value: any) => {
+
+  const handleChange = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setFormData({ ...formData, [key]: value });
   };
 
@@ -124,7 +81,7 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
     switch (step) {
       case 1:
         return (
-          <div className="p-4">
+          <div>
             <label className="block text-lg font-semibold">Select Level</label>
             <select
               className="w-full mt-2 p-2 border rounded"
@@ -144,7 +101,7 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
         );
       case 2:
         return (
-          <div className="p-4">
+          <div>
             <label className="block text-lg font-semibold">Select Year</label>
             <select
               className="w-full mt-2 p-2 border rounded"
@@ -166,14 +123,12 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
         );
       case 3:
         return (
-          <div className="p-4">
+          <div>
             <label className="block text-lg font-semibold">Select Branch</label>
             <select
               className="w-full mt-2 p-2 border rounded"
               value={formData.branch}
-              onChange={(e) =>
-                handleChange("branch", e.target.value)
-              }
+              onChange={(e) => handleChange("branch", e.target.value)}
               disabled={!formData.level || !formData.year}
             >
               <option value="" disabled>
@@ -181,7 +136,7 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
               </option>
               {formData.level &&
                 formData.year &&
-                branches[formData.level]?.[formData.year]?.map((branch) => (
+                branches[formData.level][formData.year]?.map((branch) => (
                   <option key={branch} value={branch}>
                     {branch}
                   </option>
@@ -191,40 +146,34 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
         );
       case 4:
         return (
-          <div className="p-4">
+          <div>
             <label className="block text-lg font-semibold">Enter Subject</label>
             <input
               type="text"
               className="w-full mt-2 p-2 border rounded"
               placeholder="Enter subject"
-              value={formData.subject || ""} // Get the first value or empty string
-              onChange={(e) => {
-                handleChange("subject", e.target.value); // Store as an array with one value
-              }}
+              value={formData.subject}
+              onChange={(e) => handleChange("subject", e.target.value)}
             />
           </div>
         );
       case 5:
         return (
-          <div className="p-4">
+          <div>
             <label className="block text-lg font-semibold">Enter Lesson</label>
             <input
               type="text"
               className="w-full mt-2 p-2 border rounded"
               placeholder="Enter lesson"
-              value={formData.lesson || ""} // Get the first value or empty string
-              onChange={(e) => {
-                handleChange("lesson", e.target.value); // Store as an array with one value
-              }}
+              value={formData.lesson}
+              onChange={(e) => handleChange("lesson", e.target.value)}
             />
           </div>
         );
       case 6:
         return (
-          <div className="p-4">
-            <label className="block text-lg font-semibold">
-              Select Difficulty
-            </label>
+          <div>
+            <label className="block text-lg font-semibold">Select Difficulty</label>
             <select
               className="w-full mt-2 p-2 border rounded"
               value={formData.difficulty}
@@ -245,7 +194,7 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
         );
       case 7:
         return (
-          <div className="p-4">
+          <div>
             <label className="block text-lg font-semibold">
               Number of Questions
             </label>
@@ -254,7 +203,10 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
               className="w-full mt-2 p-2 border rounded"
               value={formData.num_questions}
               onChange={(e) =>
-                handleChange("num_questions", Math.min(Math.max(+e.target.value, 1), 10))
+                handleChange(
+                  "num_questions",
+                  Math.min(Math.max(+e.target.value, 1), 10)
+                )
               }
               min={1}
               max={10}
@@ -267,21 +219,32 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-center">
-      <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
-        <h1 className="text-2xl font-bold mb-4">Step {step}</h1>
+    <div
+      className="min-h-screen bg-gradient-to-br from-blue-100 to-white flex justify-center items-center"
+    >
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full">
+        {/* Progress Bar */}
+        <div className="relative mb-6">
+          <div className="absolute top-0 left-0 h-2 bg-gray-300 w-full"></div>
+          <div
+            className="absolute top-0 left-0 h-2 bg-blue-600"
+            style={{ width: `${(step / 7) * 100}%` }}
+          ></div>
+        </div>
+
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Step {step}</h1>
         {renderStep()}
-        <div className="flex justify-between mt-4">
+        <div className="flex justify-between mt-8">
           <button
-            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            className="px-6 py-3 bg-gray-300 rounded-md text-lg text-gray-700 hover:bg-gray-400 disabled:bg-gray-200"
             disabled={step === 1}
             onClick={handlePrev}
           >
-            Previous
+            &larr; Previous
           </button>
           {step === 7 ? (
             <button
-              className={`px-4 py-2 rounded ${loading
+              className={`px-6 py-3 rounded-md text-lg ${loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
@@ -318,7 +281,7 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
             </button>
           ) : (
             <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-6 py-3 bg-blue-600 text-white rounded-md text-lg hover:bg-blue-700"
               onClick={handleNext}
               disabled={
                 (step === 2 && !formData.year) || (step === 3 && !formData.branch.length)
@@ -331,6 +294,7 @@ const GeneralQCMForm = ({ setQcmData }: any) => {
       </div>
     </div>
   );
+
 };
 
 export default GeneralQCMForm;
