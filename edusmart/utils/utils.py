@@ -248,36 +248,3 @@ def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
         f.write(html_content)
     
     print(f"QCM has been saved to {output_file}")
-
-
-
-
-
-
-
-### Old API
-def get_random_exo_examples(full_path_exo):
-    """
-    load simple .txt file containing an exercice and its solution
-    """
-    
-    all_exos = os.listdir(full_path_exo)
-    selected_exos = random.sample(all_exos, cv.NUM_PRMPT_EXO)
-    output = []
-    for exo in selected_exos:
-        try:
-            with open(full_path_exo + exo, 'r') as file:
-                output.append(file.read())
-        except FileNotFoundError:
-            print(f"The file at {full_path_exo} was not found.")
-    return output
-
-
-def generate_general_qcm_from_cours(level, year, branch, subject, lesson, difficulty, num_questions):
-    full_path_exos = cv.ROOT_DATABASE_PATH + level + "/" + year + "/" + branch + "/" + subject + "/" + lesson + "/exercices/"
-    example_exos = get_random_exo_examples(full_path_exos)
-    example_exos = "\n\n".join(example_exos)
-    prompt = pmt.PROMPT_QCM_GENERAL_SCI.format(num_questions,f"{cn.level_mapping[level]} {cn.year_mapping[year]} {cn.branch_mapping[branch]} Maroc", cn.subject_mapping[subject], cn.lesson_mapping[lesson], difficulty, example_exos)
-    response = generate_from_prompt_json(prompt)
-    return json.loads(response)
-

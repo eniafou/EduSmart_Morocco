@@ -287,7 +287,7 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
                 (step === 2 && !formData.year) || (step === 3 && !formData.branch.length)
               }
             >
-              Next
+              Next &rarr;
             </button>
           )}
         </div>
