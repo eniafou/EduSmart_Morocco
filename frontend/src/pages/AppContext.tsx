@@ -6,9 +6,11 @@ import {FormData, QCMData} from "../types/types"
 // Define the context type
 interface AppContextType {
   qcmData: QCMData; // Replace `any` with a more specific type if possible
-  setQcmData: React.Dispatch<React.SetStateAction<Array<any>>>;
+  setQcmData: React.Dispatch<React.SetStateAction<QCMData>>;
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
+  customizedCourse: string;
+  setCustomizedCourse: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // Define default values for formData
@@ -31,6 +33,8 @@ const defaultFormData: FormData = {
     setQcmData: () => {}, // Default is a no-op function
     formData: defaultFormData,
     setFormData: () => {}, // Default is a no-op function
+    customizedCourse: "",
+    setCustomizedCourse: () => {}, // Default is a no-op function
   });
 
 
@@ -42,9 +46,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // State for form data
   const [formData, setFormData] = useState<FormData>(defaultFormData);
+  const [customizedCourse, setCustomizedCourse] = useState<string>("");
 
   return (
-    <AppContext.Provider value={{ qcmData, setQcmData, formData, setFormData }}>
+    <AppContext.Provider value={{ qcmData, setQcmData, formData, setFormData, customizedCourse, setCustomizedCourse}}>
       {children}
     </AppContext.Provider>
   );

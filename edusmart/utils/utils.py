@@ -191,7 +191,153 @@ def generate_general_qcm_from_cours_parties(level, year, branch, subject, lesson
 
 
 
+def compare_answers(input_data):
+    """
+    input_data is the dictionary sent at the end of the general qcm.
+    It has two fields: answers and qcm.
+    """
+    results = {}
 
+    for course in input_data['answers']:
+        sous_cours_name = course['sous_cours_name']
+        user_answers = course['answers']
+        
+        # Find the corresponding qcm content
+        qcm_content = next((item for item in input_data['qcm'] if item['sous_cours_name'] == sous_cours_name), None)
+        
+        if qcm_content:
+            for i, question in enumerate(qcm_content['content']):
+                correct_answer = question['correct_answer']
+                user_answer_index = user_answers[i]
+                
+                # Convert user answer index to corresponding option letter (A, B, C, D)
+                user_answer_letter = chr(65 + user_answer_index)  # 65 is ASCII for 'A'
+                
+                if user_answer_letter != correct_answer:
+                    if sous_cours_name not in results:
+                        results[sous_cours_name] = []
+                    results[sous_cours_name].append(question['question'])
+    
+    # Convert results to the desired output format
+    formatted_results = [
+        {"sous_cours_name": key, "question": value}
+        for key, value in results.items()
+    ]
+    
+    return formatted_results
+
+
+
+def generate_customized_cours(general_qcm_submition):
+    """
+    general_qcm_submition has 3 keys:
+    - answers
+    - qcm
+    - meta (contains: the level, year, branch, subject, lesson)
+
+    returns:
+    out = {"data" = [
+        {"sub_title": , "content": {}},
+    ]}
+    """
+    lacunes = compare_answers(general_qcm_submition)
+    meta =  mapping_front_back_meta_form(general_qcm_submition["meta"])
+    # cn.level_mapping[meta["level"]]
+    pass
+
+def generate_customized_qcm(general_qcm_submition):
+    pass
+
+
+
+
+
+
+def gen_json_report(answers_json):
+    """
+    wtf are you doing her man?
+    what is the input?
+    what is the ouput?
+    did you even test this shit? it probably doesn't work.
+    """
+    try:
+        # Ensure the JSON is correctly formatted as a string
+        answers_json_str = json.dumps(answers_json)
+
+        # Format the prompt with the provided JSON data
+        prompt = cv.prop_gen_repport_prof.format(answers_json_str)
+        
+        # Request completion from the API
+        completion = client.chat.completions.create(
+            model=cv.OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            response_format="text"  # OpenAI typically returns plain text, not a JSON object
+        )
+        
+        # Parse the content of the response to ensure it’s a valid JSON
+        result = completion.choices[0].message.content.strip()
+        
+        # Try to load the content as a JSON object
+        try:
+            report_json = json.loads(result)
+            return report_json
+        except json.JSONDecodeError:
+            # If parsing fails, return the raw response for debugging
+            raise ValueError(f"Failed to parse JSON response: {result}")
+
+    except Exception as e:
+        # Handle errors gracefully and provide useful feedback
+        return {"error": str(e)}
+
+
+    
+
+
+
+
+
+
+
+###### hardcoded stuff ########
+def mapping_front_back_meta_form(data):
+    # Define the mapping dictionary
+    mapping_dict = {
+        'level': {
+            'Lycée': 'lycee',
+            'Université': 'University'
+        },
+        'year': {
+            '1ère Bac': '1_bac',
+            '2ème Bac': '2nd Year Bachelor'
+        },
+        'branch': {
+            'Sciences Mathématiques': 'sci_math',
+            'Sciences Physiques': 'Physical Sciences'
+        },
+        'subject': {
+            'Mathématiques': 'math',
+            'Physique': 'Physics'
+        },
+        'lesson': {
+            'Notion de logique': 'notion_de_logique',
+            'Algèbre linéaire': 'Linear Algebra'
+        },
+    }
+    
+    # Transform the data using the mapping dictionary
+    transformed_data = {}
+    for key, value in data.items():
+        if key in mapping_dict:
+            # If a mapping exists for the key, transform the value
+            transformed_data[key] = mapping_dict[key].get(value, value)
+        else:
+            # If no mapping exists, keep the original value
+            transformed_data[key] = value
+
+    return transformed_data
+
+
+#### viz #####
 def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
 
     """
@@ -319,118 +465,3 @@ def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
         f.write(html_content)
     
     print(f"QCM has been saved to {output_file}")
-
-
-
-def compare_answers(input_data):
-    """
-    input_data is the dictionary sent at the end of the general qcm.
-    It has two fields: answers and qcm.
-    """
-    results = {}
-
-    for course in input_data['answers']:
-        sous_cours_name = course['sous_cours_name']
-        user_answers = course['answers']
-        
-        # Find the corresponding qcm content
-        qcm_content = next((item for item in input_data['qcm'] if item['sous_cours_name'] == sous_cours_name), None)
-        
-        if qcm_content:
-            for i, question in enumerate(qcm_content['content']):
-                correct_answer = question['correct_answer']
-                user_answer_index = user_answers[i]
-                
-                # Convert user answer index to corresponding option letter (A, B, C, D)
-                user_answer_letter = chr(65 + user_answer_index)  # 65 is ASCII for 'A'
-                
-                if user_answer_letter != correct_answer:
-                    if sous_cours_name not in results:
-                        results[sous_cours_name] = []
-                    results[sous_cours_name].append(question['question'])
-    
-    # Convert results to the desired output format
-    formatted_results = [
-        {"sous_cours_name": key, "question": value}
-        for key, value in results.items()
-    ]
-    
-    return formatted_results
-
-
-
-def gen_json_report(answers_json):
-    try:
-        # Ensure the JSON is correctly formatted as a string
-        answers_json_str = json.dumps(answers_json)
-
-        # Format the prompt with the provided JSON data
-        prompt = cv.prop_gen_repport_prof.format(answers_json_str)
-        
-        # Request completion from the API
-        completion = client.chat.completions.create(
-            model=cv.OPENAI_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            response_format="text"  # OpenAI typically returns plain text, not a JSON object
-        )
-        
-        # Parse the content of the response to ensure it’s a valid JSON
-        result = completion.choices[0].message.content.strip()
-        
-        # Try to load the content as a JSON object
-        try:
-            report_json = json.loads(result)
-            return report_json
-        except json.JSONDecodeError:
-            # If parsing fails, return the raw response for debugging
-            raise ValueError(f"Failed to parse JSON response: {result}")
-
-    except Exception as e:
-        # Handle errors gracefully and provide useful feedback
-        return {"error": str(e)}
-
-
-    
-
-def generate_customized_cours(general_qcm_submition):
-    lacunes = compare_answers(general_qcm_submition)
-    generate_from_prompt_json
-
-
-###### hardcoded stuff ########
-def mapping_front_back_general_qcm_form(data):
-    # Define the mapping dictionary
-    mapping_dict = {
-        'level': {
-            'Lycée': 'lycee',
-            'Université': 'University'
-        },
-        'year': {
-            '1ère Bac': '1_bac',
-            '2ème Bac': '2nd Year Bachelor'
-        },
-        'branch': {
-            'Sciences Mathématiques': 'sci_math',
-            'Sciences Physiques': 'Physical Sciences'
-        },
-        'subject': {
-            'Mathématiques': 'math',
-            'Physique': 'Physics'
-        },
-        'lesson': {
-            'Notion de logique': 'notion_de_logique',
-            'Algèbre linéaire': 'Linear Algebra'
-        },
-    }
-    
-    # Transform the data using the mapping dictionary
-    transformed_data = {}
-    for key, value in data.items():
-        if key in mapping_dict:
-            # If a mapping exists for the key, transform the value
-            transformed_data[key] = mapping_dict[key].get(value, value)
-        else:
-            # If no mapping exists, keep the original value
-            transformed_data[key] = value
-
-    return transformed_data

@@ -14,7 +14,7 @@ def submit_answers():
 
     # Process the answers as needed (e.g., save to database, evaluate, etc.)
     # Here, we simply return them back
-    return jsonify({"message": "Answers received successfully", "answers": answers})
+    return jsonify({"cours": "Answers received successfully"})
 
 
 

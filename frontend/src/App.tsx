@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import QCMApp from "./pages/qcm";
 import GeneralQCMForm from "./pages/GeneralQCMForm";
 import { AppProvider } from "./pages/AppContext";
+import CustomizedLesson from "./pages/CustomizedLesson";
 
 
 
@@ -14,11 +15,10 @@ const App = () => {
     <AppProvider>
     <Router>
       <Routes>
-        {/* Root Page */}
-        <Route path="/" element={<GeneralQCMForm/>} />
-        
-        {/* QCM Page */}
+        {/* <Route path="/" element={<GeneralQCMForm/>} /> */}
         <Route path="/qcm" element={<QCMApp />} />
+        {/* <Route path="/customized-course" element={<CustomizedLesson />} /> */}
+        <Route path="/" element={<CustomizedLesson />} />
       </Routes>
     </Router>
     </AppProvider>
