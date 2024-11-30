@@ -262,31 +262,36 @@ def generate_customized_cours(general_qcm_submition):
 
 
 def generate_customized_qcm(general_qcm_submition):
+    """
     
+    """
+
     meta =  mapping_front_back_meta_form(general_qcm_submition["meta"])
     data = {"data":[]}
     full_path_exos = cv.ROOT_DATABASE_PATH + meta["level"] + "/" + meta["year"] + "/" + meta["branch"] + "/" + meta["subject"] + "/" + meta["lesson"]
     lacunes = compare_answers(general_qcm_submition)
-    for item in lacunes:
+    for sous_cours_name in lacunes.items():
         
-        sous_cours = load_sous_cours(full_path_exos + "/cours/" + item["sous_cours_name"] + ".txt")
-        prompt = pmt.PROMPT_QCM_GENERAL_SCI.format(f"{cn.level_mapping[meta["level"]]} {cn.year_mapping[meta["year"]]} {cn.branch_mapping[meta["branch"]]} Maroc", cn.subject_mapping[meta["subject"]], cn.lesson_mapping[meta["lesson"]],sous_cours,item["question"])
+        example_exos = get_random_exo_examples_from_list(full_path_exos + "/exercices/", sim_sous_cours[sous_cours_name])
+        
+        
+        
+        prompt = pmt.PROMPT_QCM_GENERAL_WITH_LESSON_SCI.format(num_questions,f"{cn.level_mapping[level]} {cn.year_mapping[year]} {cn.branch_mapping[branch]} Maroc", cn.subject_mapping[subject], cn.lesson_mapping[lesson], difficulty, sous_cours,example_exos)
         response = generate_from_prompt_json(prompt)
-        content = json.loads(response)["data"]
-        sous_proposed_cours = {"sub_title": item["sous_cours_name"], "content": content}
-        data["data"].append(sous_proposed_cours)
-
-    pass
-
+        quizz = json.loads(response)["data"]
+        sous_cours_quizz = {"sous_cours_name": sous_cours_name, "content": quizz}
+        data["data"].append(sous_cours_quizz)
+    return data
 
 
-def generate_customized_report(answers_json):
+def generate_customized_report(general_qcm_submition):
     """
     wtf are you doing her man?
     what is the input?
     what is the ouput?
     did you even test this shit? it probably doesn't work.
     """
+    answers_json = compare_answers(general_qcm_submition)
     try:
         # Ensure the JSON is correctly formatted as a string
         answers_json_str = json.dumps(answers_json)
