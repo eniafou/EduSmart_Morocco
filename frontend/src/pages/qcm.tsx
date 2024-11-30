@@ -5,7 +5,7 @@ import { useAppContext } from "./AppContext";
 import { useNavigate } from "react-router-dom"; // Assuming react-router-dom is being used for navigation
 
 const QCMApp = () => {
-    const { qcmData, setCustomizedCourse } = useAppContext(); // Assuming `setCustomizedCourse` is part of AppContext
+    const { formData, qcmData, setCustomizedCourse } = useAppContext(); // Assuming `setCustomizedCourse` is part of AppContext
     const navigate = useNavigate();
 
     if (!qcmData || qcmData.length === 0) {
@@ -35,10 +35,12 @@ const QCMApp = () => {
             const response = await axios.post('http://127.0.0.1:5000/submit', {
                 answers: selectedAnswers,
                 qcm: qcmData,
+                meta: formData,
             });
 
             // Set the customized course data in the app context
-            setCustomizedCourse(response.data["cours"]);
+            console.log(response.data["data"])
+            setCustomizedCourse(response.data["data"]);
             setSubmitLabel("Get your customized course");
         } catch (error) {
             console.error('Error submitting answers:', error);

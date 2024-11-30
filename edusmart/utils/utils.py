@@ -28,12 +28,13 @@ def get_embedding(text, model="text-embedding-ada-002"):
     Returns:
         list: A list containing the embedding vector.
     """
-    
-    response = openai.Embedding.create(
+    response = client.embeddings.create(
         model=model,
-        input=text
+        input=text,
+        encoding_format="float"
     )
-    embedding = response['data'][0]['embedding']
+
+    embedding = response.data[0].embedding
     return embedding
 def load_embeddings(file_path):
     """
@@ -146,7 +147,7 @@ def generate_from_prompt_json(prompt):
             {"role": "user", "content": prompt}
         ],
         response_format = { "type": "json_object" },
-        temperature = 0.5
+        temperature = 1
     )
     return completion.choices[0].message.content
 
@@ -241,17 +242,20 @@ def generate_customized_cours(general_qcm_submition):
         {"sub_title": , "content": {}},
     ]}
     """
+    raw_meta = general_qcm_submition["meta"]
     meta =  mapping_front_back_meta_form(general_qcm_submition["meta"])
     data = {"data":[]}
+    print(raw_meta)
     full_path_cours = cv.ROOT_DATABASE_PATH + meta["level"] + "/" + meta["year"] + "/" + meta["branch"] + "/" + meta["subject"] + "/" + meta["lesson"]
     
     lacunes = compare_answers(general_qcm_submition)
     set_exo = get_similar_exo_qcm(meta["level"], meta["year"], meta["branch"], meta["subject"], meta["lesson"], lacunes)
     for item in lacunes:
         sous_cours = load_sous_cours(full_path_cours + "/cours/" + item["sous_cours_name"] + ".txt")
-        prompt = pmt.PROMPT_QCM_GENERAL_SCI.format(f"{cn.level_mapping[meta["level"]]} {cn.year_mapping[meta["year"]]} {cn.branch_mapping[meta["branch"]]} Maroc", cn.subject_mapping[meta["subject"]], cn.lesson_mapping[meta["lesson"]],sous_cours,item["question"])
+        prompt = pmt.PROMPT_COURS_GENERATION.format(f"{raw_meta["level"]} {raw_meta["year"]} {raw_meta["branch"]} Maroc", raw_meta["subject"], raw_meta["lesson"],sous_cours,item["question"])
         response = generate_from_prompt_json(prompt)
-        content = json.loads(response)["data"]
+        print(response)
+        content = json.loads(response)["content"]
         sous_proposed_cours = {"sub_title": item["sous_cours_name"], "content": content}
         data["data"].append(sous_proposed_cours)
     
@@ -287,10 +291,6 @@ def generate_customized_qcm(general_qcm_submition):
 
 def generate_customized_report(general_qcm_submition):
     """
-    wtf are you doing her man?
-    what is the input?
-    what is the ouput?
-    did you even test this shit? it probably doesn't work.
     """
     answers_json = compare_answers(general_qcm_submition)
     try:

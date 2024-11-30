@@ -7,14 +7,9 @@ CORS(app)  # Enable Cross-Origin Resource Sharing
 
 @app.route('/submit', methods=['POST'])
 def submit_answers():
-    data = request.json  # Parse the JSON request body
-    print(data)
-    answers = data.get('answers', [])
-    print(f"Received answers: {answers}")
-
-    # Process the answers as needed (e.g., save to database, evaluate, etc.)
-    # Here, we simply return them back
-    return jsonify({"cours": "Answers received successfully"})
+    data = request.json
+    data = generate_customized_cours(data)
+    return jsonify(data)
 
 
 

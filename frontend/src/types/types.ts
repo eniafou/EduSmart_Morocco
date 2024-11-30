@@ -20,3 +20,8 @@ export type QCMData = Array<{
     difficulty: Difficulty | "";
     num_questions: number;
   }
+
+  export interface SousPartieCours {
+    sub_title: string;
+    content: string;
+}

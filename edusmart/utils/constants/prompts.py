@@ -74,14 +74,15 @@ NOTER BIEN: Pour génerer les question il faut se baser plus sur les exemples fo
 """
 
 
-promt_course_generation = """
+PROMPT_COURS_GENERATION = """
 Vous êtes un créateur de contenu éducatif chargé de concevoir un cours personnalisé basé sur les résultats d’un quiz d’un étudiant.  
 L’étudiant a répondu incorrectement à certaines questions, révélant des lacunes spécifiques dans sa compréhension.  
 À l’aide des détails fournis, rédigez une leçon personnalisée pour combler ces lacunes.
-
+Inclue seulement le cours dans ta réponse sans le titre (le titre est déja fourni).
+Suivi le format suivant:
 Introduction
 Rappel des définitions
-Correction des erreurs
+Correction des erreurs (essayer d'être le plus precis et le plus simple possible)
 Remarques et conseils
 Exercice d’entraînement
 
@@ -139,5 +140,11 @@ Rédige un rapport synthétique et structuré destiné à un enseignant pour ana
   }},
   "conclusion": "Synthèse globale des domaines nécessitant une attention particulière et recommandations pour progresser."
 }}
+"""
+
+
+"""
+
 - Veillez à une gestion correcte de la syntaxe LaTeX, et notons que ce latex va etre le input pour une fonction qui genere un ficier HTML  ,notamment pour les expressions mathématiques, les sauts de ligne et l’échappement des caractères spéciaux.
+
 """

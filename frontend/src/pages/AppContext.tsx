@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import {FormData, QCMData} from "../types/types"
+import {FormData, QCMData, SousPartieCours} from "../types/types"
 // Define types for Level, Difficulty, and FormData
 
 
@@ -9,8 +9,8 @@ interface AppContextType {
   setQcmData: React.Dispatch<React.SetStateAction<QCMData>>;
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
-  customizedCourse: string;
-  setCustomizedCourse: React.Dispatch<React.SetStateAction<string>>;
+  customizedCourse: Array<SousPartieCours>;
+  setCustomizedCourse: React.Dispatch<React.SetStateAction<Array<SousPartieCours>>>;
 }
 
 // Define default values for formData
@@ -23,7 +23,11 @@ const defaultFormData: FormData = {
     difficulty: "Moyen",
     num_questions: 1,
   };
-  
+
+  // const defaultCustomizedCourse: SousPartieCours = {
+  //   sub_title: "",
+  //   content: "",
+  // }
   // Define default values for qcmData (assuming it's an empty array by default)
   const defaultQcmData: QCMData = [];
   
@@ -33,7 +37,7 @@ const defaultFormData: FormData = {
     setQcmData: () => {}, // Default is a no-op function
     formData: defaultFormData,
     setFormData: () => {}, // Default is a no-op function
-    customizedCourse: "",
+    customizedCourse: [],
     setCustomizedCourse: () => {}, // Default is a no-op function
   });
 
@@ -46,7 +50,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // State for form data
   const [formData, setFormData] = useState<FormData>(defaultFormData);
-  const [customizedCourse, setCustomizedCourse] = useState<string>("");
+  const [customizedCourse, setCustomizedCourse] = useState<Array<SousPartieCours>>([]);
 
   return (
     <AppContext.Provider value={{ qcmData, setQcmData, formData, setFormData, customizedCourse, setCustomizedCourse}}>
