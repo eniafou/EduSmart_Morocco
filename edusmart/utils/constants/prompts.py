@@ -79,10 +79,10 @@ L’étudiant a répondu incorrectement à certaines questions, révélant des l
 
 Votre réponse doit être en format JSON avec les champs ci-dessous :  
 
-{
+{{
   "Titre": "Le titre du cours, précisant la partie concernée",
   "Leçon proposée et exemples": "Une leçon personnalisée traitant les lacunes de l'étudiant, incluant des exemples. Le leçon doist être en format LaTeX. Utilisez des sauts de ligne appropriés et vérifiez les erreurs communes en LaTeX (par exemple, absence de $ pour les mathématiques, sauts de ligne incorrects, etc.)."
-}
+}}
  
 Directives :  
 - Adaptez la leçon au niveau scolaire et à la matière de l’étudiant.  
@@ -98,4 +98,38 @@ Détails fournis :
 - Section du cours : {}  
 - Questions incorrectes : {} 
 
+"""
+prop_gen_repport_prof = """
+Rédige un rapport synthétique et structuré destiné à un enseignant pour analyser les lacunes d'un élève dans un test QCM.
+
+### Instructions :
+1. L'entrée sera une liste d'objets, où chaque objet contient :
+   - Le nom d'un sous-cours ("sous_cours_name").
+   - Une liste des questions incorrectes associées ("question").
+2. Analyse chaque sous-cours pour identifier les erreurs conceptuelles liées aux questions incorrectes. 
+3. Fournis une analyse des lacunes par sous-cours, sans mentionner explicitement les questions incorrectes.
+4. Ajoute une section indiquant, pour chaque sous-cours, le **nombre de questions incorrectes**.
+5. Rédige une conclusion globale mentionnant les domaines nécessitant une attention particulière, avec des recommandations pour améliorer la compréhension de l'élève.
+
+### details de l'entrée :
+[
+{}
+]
+
+### Format attendu pour la sortie :
+{{
+  "analyse_des_lacunes_par_sous_cours": [
+    {{
+      "sous_cours_name": "Nom du sous-cours",
+      "analyse": "Résumé des lacunes conceptuelles associées à ce sous-cours."
+    }},
+    ...
+  ],
+  "nombre_questions_incorrectes_par_sous_cours": {{
+    "Nom du sous-cours 1": "Nombre de questions incorrectes",
+    "Nom du sous-cours 2": "Nombre de questions incorrectes",
+    ...
+  }},
+  "conclusion": "Synthèse globale des domaines nécessitant une attention particulière et recommandations pour progresser."
+}}
 """

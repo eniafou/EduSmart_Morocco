@@ -282,3 +282,38 @@ def compare_answers(input_data):
     ]
     
     return formatted_results
+
+
+
+def gen_json_report(answers_json):
+    try:
+        # Ensure the JSON is correctly formatted as a string
+        answers_json_str = json.dumps(answers_json)
+
+        # Format the prompt with the provided JSON data
+        prompt = cv.prop_gen_repport_prof.format(answers_json_str)
+        
+        # Request completion from the API
+        completion = client.chat.completions.create(
+            model=cv.OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            response_format="text"  # OpenAI typically returns plain text, not a JSON object
+        )
+        
+        # Parse the content of the response to ensure it’s a valid JSON
+        result = completion.choices[0].message.content.strip()
+        
+        # Try to load the content as a JSON object
+        try:
+            report_json = json.loads(result)
+            return report_json
+        except json.JSONDecodeError:
+            # If parsing fails, return the raw response for debugging
+            raise ValueError(f"Failed to parse JSON response: {result}")
+
+    except Exception as e:
+        # Handle errors gracefully and provide useful feedback
+        return {"error": str(e)}
+
+
+    
