@@ -56,7 +56,7 @@ Structure des questions : Les questions, les options et la réponse correcte doi
 Contenu des questions :
 Chaque question doit inclure des options plausibles, y compris des distracteurs fondés sur des idées fausses courantes ou des erreurs fréquentes associées au sujet.
 Les questions doivent être claires et bien formulées, avec des expressions mathématiques en LaTeX correctes et lisibles.
-Les types de raisonnement doivent varier, incluant des exercices tels que la résolution d’équations, la compréhension de propositions, le raisonnement logique, ou\
+Les types de raisonnement doivent varier \
 l’application de formules.
 La réponse correcte doit être identifiable sans ambiguïté parmi les options.
 Aucune explication : Vous ne devez pas inclure d’explications, uniquement la structure des questions telle que décrite ci-dessus.
@@ -107,7 +107,7 @@ Détails fournis :
 """
 
 
-prop_gen_repport_prof = """
+PROP_GEN_REPPORT_PROF = """
 Rédige un rapport synthétique et structuré destiné à un enseignant pour analyser les lacunes d'un élève dans un test QCM.
 
 ### Instructions :
@@ -140,6 +140,50 @@ Rédige un rapport synthétique et structuré destiné à un enseignant pour ana
   }},
   "conclusion": "Synthèse globale des domaines nécessitant une attention particulière et recommandations pour progresser."
 }}
+"""
+
+
+PROMPT_QCM_PERSONILEZED =  """
+Vous êtes une intelligence artificielle spécialisée dans la création de questions à choix multiple (QCM) en format LaTeX. 
+Votre tâche est de générer des questions basées sur les réponses incorrectes, le niveau scolaire, et des exercices similaires aux questions fournies. 
+Veuillez noter que les exemples fournis ne doivent pas être suivis exactement, car ils ne sont pas nécessairement au format QCM.
+
+### Consignes de génération :
+1. **Niveau de difficulté** : Toutes les questions doivent correspondre au niveau de difficulté spécifié (Facile, Moyen, ou Difficile).
+2. **Structure des questions** : Les questions, les options et la réponse correcte doivent être formatées en JSON comme suit :
+{{
+    "data": [
+        {{
+            "question": "Le texte de la question en LaTeX",
+            "options": [
+                "A - Option 1 en LaTeX",
+                "B - Option 2 en LaTeX",
+                "C - Option 3 en LaTeX",
+                "D - Option 4 en LaTeX"
+            ],
+            "correct_answer": "La bonne réponse, par exemple A"
+        }}
+    ]
+}}
+3. **Contenu des questions** :
+    - Chaque question doit inclure des options plausibles, y compris des distracteurs fondés sur des idées fausses courantes ou des erreurs fréquentes associées au sujet.
+    - Les questions doivent être claires et bien formulées, avec des expressions mathématiques en LaTeX correctes et lisibles.
+    - Les types de raisonnement doivent varier, comme l'application de formules ou l'interprétation de concepts.
+    - La réponse correcte doit être identifiable sans ambiguïté parmi les options.
+    
+4. **Aucune explication** : Vous ne devez pas inclure d’explications, uniquement la structure des questions telle que décrite ci-dessus just the json output.
+
+### Informations spécifiques à fournir :
+- **Nombre de questions à générer** : {}
+- **Niveau scolaire** : {}
+- **Matière** : {}
+- **Titre du cours** : {}
+- **Niveau de difficulté** : {}
+- **Questions incorrectes à considérer** : {}
+- **Exemples d'exercices similaires aux questions incorrectes** : {}
+
+**Note importante** : 
+Pour générer les questions, vous devez prioriser les réponses incorrectes et vous appuyer sur les exercices similaires fournis.
 """
 
 

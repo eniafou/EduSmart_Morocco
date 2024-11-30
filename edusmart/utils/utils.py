@@ -168,6 +168,7 @@ def get_random_exo_examples_from_list(full_path_exos, exos_list):
         except FileNotFoundError:
             print(f"The file at {full_path_exos} was not found.")
     return output
+
 def load_sous_cours(sous_cours_path):
     try:
         with open(sous_cours_path, 'r') as file:
@@ -228,8 +229,6 @@ def compare_answers(input_data):
     
     return formatted_results
 
-
-
 def generate_customized_cours(general_qcm_submition):
     """
     general_qcm_submition has 3 keys:
@@ -245,7 +244,6 @@ def generate_customized_cours(general_qcm_submition):
     raw_meta = general_qcm_submition["meta"]
     meta =  mapping_front_back_meta_form(general_qcm_submition["meta"])
     data = {"data":[]}
-    print(raw_meta)
     full_path_cours = cv.ROOT_DATABASE_PATH + meta["level"] + "/" + meta["year"] + "/" + meta["branch"] + "/" + meta["subject"] + "/" + meta["lesson"]
     
     lacunes = compare_answers(general_qcm_submition)
@@ -254,34 +252,26 @@ def generate_customized_cours(general_qcm_submition):
         sous_cours = load_sous_cours(full_path_cours + "/cours/" + item["sous_cours_name"] + ".txt")
         prompt = pmt.PROMPT_COURS_GENERATION.format(f"{raw_meta["level"]} {raw_meta["year"]} {raw_meta["branch"]} Maroc", raw_meta["subject"], raw_meta["lesson"],sous_cours,item["question"])
         response = generate_from_prompt_json(prompt)
-        print(response)
         content = json.loads(response)["content"]
         sous_proposed_cours = {"sub_title": item["sous_cours_name"], "content": content}
         data["data"].append(sous_proposed_cours)
     
     return data 
     
-    
-    
-    # cn.level_mapping[meta["level"]]
-
-
-def generate_customized_qcm(general_qcm_submition):
-    """
-    
-    """
-
+def generate_customized_qcm(general_qcm_submition,num_questions):
+    raw_meta = general_qcm_submition["meta"]
     meta =  mapping_front_back_meta_form(general_qcm_submition["meta"])
     data = {"data":[]}
     full_path_exos = cv.ROOT_DATABASE_PATH + meta["level"] + "/" + meta["year"] + "/" + meta["branch"] + "/" + meta["subject"] + "/" + meta["lesson"]
     lacunes = compare_answers(general_qcm_submition)
-    for sous_cours_name in lacunes.items():
-        
-        example_exos = get_random_exo_examples_from_list(full_path_exos + "/exercices/", sim_sous_cours[sous_cours_name])
-        
-        
-        
-        prompt = pmt.PROMPT_QCM_GENERAL_WITH_LESSON_SCI.format(num_questions,f"{cn.level_mapping[level]} {cn.year_mapping[year]} {cn.branch_mapping[branch]} Maroc", cn.subject_mapping[subject], cn.lesson_mapping[lesson], difficulty, sous_cours,example_exos)
+    get_similar_exo_qcm(meta["level"], meta["year"], meta["branch"], meta["subject"], meta["lesson"], meta["wrong_answers"])
+    
+    for item in lacunes:
+        sous_cours_name = item["sous_cours_name"]
+        incorrect_questions = get_similar_exo_qcm[sous_cours_name]["questions"]
+        exos_sim_list = get_similar_exo_qcm[sous_cours_name]["sim_exos"]
+        exos_sim = get_random_exo_examples_from_list(full_path_exos, exos_sim_list)
+        prompt = pmt.PROMPT_QCM_PERSONILEZED.format(num_questions,f"{raw_meta["level"]} {raw_meta["year"]} {raw_meta["branch"]} Maroc", raw_meta["subject"], raw_meta["lesson"], raw_meta["difficulty"], incorrect_questions,exos_sim)
         response = generate_from_prompt_json(prompt)
         quizz = json.loads(response)["data"]
         sous_cours_quizz = {"sous_cours_name": sous_cours_name, "content": quizz}
@@ -298,7 +288,7 @@ def generate_customized_report(general_qcm_submition):
         answers_json_str = json.dumps(answers_json)
 
         # Format the prompt with the provided JSON data
-        prompt = pmt.prop_gen_repport_prof.format(answers_json_str)
+        prompt = pmt.PROP_GEN_REPPORT_PROF.format(answers_json_str)
         
         # Request completion from the API
         completion = client.chat.completions.create(
