@@ -140,7 +140,4 @@ Rédige un rapport synthétique et structuré destiné à un enseignant pour ana
   "conclusion": "Synthèse globale des domaines nécessitant une attention particulière et recommandations pour progresser."
 }}
 - Veillez à une gestion correcte de la syntaxe LaTeX, et notons que ce latex va etre le input pour une fonction qui genere un ficier HTML  ,notamment pour les expressions mathématiques, les sauts de ligne et l’échappement des caractères spéciaux.
-
-
-
 """
