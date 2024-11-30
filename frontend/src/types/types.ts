@@ -6,3 +6,17 @@ export type QCMData = Array<{
       correct_answer: string;
     }>;
   }>;
+
+
+  export type Level = "Lycée" | "Collège" | "Primaire";
+  export type Difficulty = "Facile" | "Moyen" | "Difficile";
+  
+  export interface FormData {
+    level: Level | "";
+    year: string | "";
+    branch: string;
+    subject: string;
+    lesson: string;
+    difficulty: Difficulty | "";
+    num_questions: number;
+  }

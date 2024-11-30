@@ -13,6 +13,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@types/marked": "^6.0.0",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.7.8",
     "better-react-mathjax": "^2.0.4-beta1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

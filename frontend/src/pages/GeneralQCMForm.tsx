@@ -1,58 +1,56 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAppContext } from "./AppContext";
+import { Level, Difficulty, FormData } from "../types/types"
 
-type Level = "lycee" | "college" | "primaire";
-type Difficulty = "Facile" | "Moyen" | "Difficile";
+const stepToName: { [key: number]: string } = {
+  1: "Niveau scolaire:",
+  2: "Classe:",
+  3: "Filière:",
+  4: "Matière:",
+  5: "Cours",
+  6: "Niveau de difficulté:",
+  7: "Nombre de questions:",
+};
 
-interface FormData {
-  level: Level | "";
-  year: string | "";
-  branch: string;
-  subject: string;
-  lesson: string;
-  difficulty: Difficulty | "";
-  num_questions: number;
-}
+const levels: Level[] = ["Lycée", "Collège", "Primaire"];
+const years: Record<Level, string[]> = {
+  Lycée: ["Tronc Commun", "1ère Bac", "2ème Bac"],
+  Collège: ["1ère année", "2ère année", "3ère année"],
+  Primaire: ["1ère année", "2ère année", "3ère année","4ère année", "5ère année", "6ère année"],
+};
+const branches: Record<Level, Record<string, string[]>> = {
+  Lycée: {
+    "1ère Bac": ["Sciences Mathématiques", "Sciences Expérimentales","Sciences Économiques et Gestion"],
+    "2ème Bac": ["Sciences Mathématiques A", "Sciences Mathématiques B", "Sciences Physiques"],
+    "Tronc Commun": ["Sciences","Technologies", "Lettres et Sciences Humaines"],
+  },
+  Collège: {
+    "1ère année": ["Commun"],
+    "2ère année": ["Commun"],
+    "3ère année": ["Commun"],
+  },
+  Primaire: {
+    "1ère année": ["Commun"],
+    "2ère année": ["Commun"],
+    "3ère année": ["Commun"],
+    "4ère année": ["Commun"],
+    "5ère année": ["Commun"],
+    "6ère année": ["Commun"],
+  },
+};
 
-const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => {
+const difficulties: Difficulty[] = ["Facile", "Moyen", "Difficile"];
+
+const GeneralQCMForm = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<FormData>({
-    level: "",
-    year: "",
-    branch: "",
-    subject: "math",
-    lesson: "notion_de_logique",
-    difficulty: "",
-    num_questions: 1,
-  });
+  const { formData, setFormData, setQcmData } = useAppContext();
 
-  const levels: Level[] = ["lycee", "college", "primaire"];
-  const years: Record<Level, string[]> = {
-    lycee: ["tronc_commun", "1_bac", "2_bac"],
-    college: ["Year 4", "Year 5", "Year 6"],
-    primaire: ["Year 7", "Year 8", "Year 9"],
-  };
-  const branches: Record<Level, Record<string, string[]>> = {
-    lycee: {
-      "1_bac": ["sci_math", "sci_exp"],
-      "2_bac": ["Branch C", "Branch D"],
-      "tronc_commun": [],
-    },
-    college: {
-      "Year 4": [],
-      "Year 5": [],
-      "Year 6": [],
-    },
-    primaire: {
-      "Year 7": [],
-      "Year 8": [],
-      "Year 9": [],
-    },
-  };
-  const difficulties: Difficulty[] = ["Facile", "Moyen", "Difficile"];
+
+
 
   const handleNext = () => setStep((prev) => Math.min(prev + 1, 7));
   const handlePrev = () => setStep((prev) => Math.max(prev - 1, 1));
@@ -82,14 +80,15 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
       case 1:
         return (
           <div>
-            <label className="block text-lg font-semibold">Select Level</label>
+            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
+            <label className="block text-lg font-semibold">Quel niveau d'enseignement prenez-vous en charge ?</label>
             <select
               className="w-full mt-2 p-2 border rounded"
               value={formData.level}
               onChange={(e) => handleChange("level", e.target.value as Level)}
             >
               <option value="" disabled>
-                Choose Level
+                Choisir le niveau scolaire
               </option>
               {levels.map((level) => (
                 <option key={level} value={level}>
@@ -102,7 +101,8 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
       case 2:
         return (
           <div>
-            <label className="block text-lg font-semibold">Select Year</label>
+            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
+            <label className="block text-lg font-semibold">Quelle classe enseignez-vous actuellement ? </label>
             <select
               className="w-full mt-2 p-2 border rounded"
               value={formData.year}
@@ -124,7 +124,8 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
       case 3:
         return (
           <div>
-            <label className="block text-lg font-semibold">Select Branch</label>
+            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
+            <label className="block text-lg font-semibold">Quelle filière enseignez-vous ?</label>
             <select
               className="w-full mt-2 p-2 border rounded"
               value={formData.branch}
@@ -147,7 +148,8 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
       case 4:
         return (
           <div>
-            <label className="block text-lg font-semibold">Enter Subject</label>
+            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
+            <label className="block text-lg font-semibold">Quelle matière enseignez-vous ?</label>
             <input
               type="text"
               className="w-full mt-2 p-2 border rounded"
@@ -160,7 +162,8 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
       case 5:
         return (
           <div>
-            <label className="block text-lg font-semibold">Enter Lesson</label>
+            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
+            <label className="block text-lg font-semibold">Quelle cours enseignez-vous ?</label>
             <input
               type="text"
               className="w-full mt-2 p-2 border rounded"
@@ -173,7 +176,7 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
       case 6:
         return (
           <div>
-            <label className="block text-lg font-semibold">Select Difficulty</label>
+            <label className="block text-lg font-semibold">Quel est le niveau de difficulté des questions ?</label>
             <select
               className="w-full mt-2 p-2 border rounded"
               value={formData.difficulty}
@@ -196,7 +199,7 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
         return (
           <div>
             <label className="block text-lg font-semibold">
-              Number of Questions
+            Combien de questions par partie de leçon ?
             </label>
             <input
               type="number"
@@ -232,7 +235,7 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
           ></div>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Step {step}</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">{stepToName[step]}</h1>
         {renderStep()}
         <div className="flex justify-between mt-8">
           <button
@@ -245,8 +248,8 @@ const GeneralQCMForm = ({ setQcmData }: { setQcmData: (data: any) => void }) => 
           {step === 7 ? (
             <button
               className={`px-6 py-3 rounded-md text-lg ${loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
               onClick={handleSubmit}
               disabled={loading} // Disable button while loading

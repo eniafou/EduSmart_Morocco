@@ -251,8 +251,11 @@ def save_qcm_to_html(qcm_data, output_file="qcm_output.html"):
 
 
 
-############ Cours generation Based on wrong answers ##################################
 def compare_answers(input_data):
+    """
+    input_data is the dictionary sent at the end of the general qcm.
+    It has two fields: answers and qcm.
+    """
     results = {}
 
     for course in input_data['answers']:
@@ -282,3 +285,47 @@ def compare_answers(input_data):
     ]
     
     return formatted_results
+
+
+def generate_customized_cours(general_qcm_submition):
+    lacunes = compare_answers(general_qcm_submition)
+    generate_from_prompt_json
+
+
+###### hardcoded stuff ########
+def mapping_front_back_general_qcm_form(data):
+    # Define the mapping dictionary
+    mapping_dict = {
+        'level': {
+            'Lycée': 'lycee',
+            'Université': 'University'
+        },
+        'year': {
+            '1ère Bac': '1_bac',
+            '2ème Bac': '2nd Year Bachelor'
+        },
+        'branch': {
+            'Sciences Mathématiques': 'sci_math',
+            'Sciences Physiques': 'Physical Sciences'
+        },
+        'subject': {
+            'Mathématiques': 'math',
+            'Physique': 'Physics'
+        },
+        'lesson': {
+            'Notion de logique': 'notion_de_logique',
+            'Algèbre linéaire': 'Linear Algebra'
+        },
+    }
+    
+    # Transform the data using the mapping dictionary
+    transformed_data = {}
+    for key, value in data.items():
+        if key in mapping_dict:
+            # If a mapping exists for the key, transform the value
+            transformed_data[key] = mapping_dict[key].get(value, value)
+        else:
+            # If no mapping exists, keep the original value
+            transformed_data[key] = value
+
+    return transformed_data

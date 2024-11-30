@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { MathJax, MathJaxContext } from 'better-react-mathjax';
 import axios from 'axios';
-import { QCMData } from '../types/types';
+import { useAppContext } from "./AppContext";
 
 
 
-const QCMApp = ({ qcmData }: { qcmData: QCMData }) => {
+const QCMApp = () => {
+    const { qcmData} = useAppContext();
+
     if (!qcmData || qcmData.length === 0) {
         return <p>No QCM data available. Go back and generate questions first.</p>;
     }
@@ -52,14 +54,14 @@ const QCMApp = ({ qcmData }: { qcmData: QCMData }) => {
                     <div key={sectionIndex} className="mb-8">
                         <h2 className="text-xl font-bold mb-4">{section.sous_cours_name}</h2>
 
-                        {section.content.map((item, questionIndex) => (
+                        {section.content.map((item: any, questionIndex: any) => (
                             <div key={questionIndex} className="mb-6">
                                 <MathJax>
                                     <p className="font-semibold mb-3">{`${questionIndex + 1}. ${item.question}`}</p>
                                 </MathJax>
 
                                 <div className="space-y-2">
-                                    {item.options.map((option, optionIndex) => (
+                                    {item.options.map((option: any, optionIndex: any) => (
                                         <label
                                             key={optionIndex}
                                             className={`block p-3 border rounded cursor-pointer transition-colors 

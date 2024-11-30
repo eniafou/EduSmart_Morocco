@@ -16,9 +16,13 @@ def submit_answers():
     # Here, we simply return them back
     return jsonify({"message": "Answers received successfully", "answers": answers})
 
+
+
+
 @app.route('/create_general_qcm', methods=['POST'])
 def create_general_qcm():
     data = request.json
+    data = mapping_front_back_general_qcm_form(data)
     qcm_data = generate_general_qcm_from_cours_parties(**data)
     return jsonify(qcm_data["data"])
 
