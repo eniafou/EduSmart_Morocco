@@ -4,7 +4,7 @@ EXO_PATH_EMBEDDING_SUFFIX = "/exercices/embeddings.pkl"
 SOUS_COURS_PATH_EMBEDDING_SUFFIX = "/cours/embeddings.pkl"
 ROOT_DATABASE_PATH = "./database/"
 OPENAI_MODEL = "gpt-4o-mini"
-NUM_SIMILARITY_EXO = 10 
-NUM_PRMPT_EXO = 3 # must be less or equal to NUM_SIMILAR_EXO
+NUM_SIMILARITY_EXO = 15
+NUM_PRMPT_EXO = 2 # must be less or equal to NUM_SIMILAR_EXO
 
 

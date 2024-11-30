@@ -15,10 +15,10 @@ const App = () => {
     <AppProvider>
     <Router>
       <Routes>
-        {/* <Route path="/" element={<GeneralQCMForm/>} /> */}
+        <Route path="/" element={<GeneralQCMForm/>} />
         <Route path="/qcm" element={<QCMApp />} />
-        {/* <Route path="/customized-course" element={<CustomizedLesson />} /> */}
-        <Route path="/" element={<CustomizedLesson />} />
+        <Route path="/customized-course" element={<CustomizedLesson />} />
+        {/* <Route path="/" element={<CustomizedLesson />} /> */}
       </Routes>
     </Router>
     </AppProvider>

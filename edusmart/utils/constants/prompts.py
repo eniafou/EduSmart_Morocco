@@ -69,6 +69,8 @@ Niveau de difficulté : {}
 Texte du cours : {}
 Exemples d'exercices reliés au cours : {}
 
+NOTER BIEN: Pour génerer les question il faut se baser plus sur les exemples fournis que sur le cours.
+
 """
 
 
