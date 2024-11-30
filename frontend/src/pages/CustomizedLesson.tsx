@@ -3,10 +3,14 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import 'katex/dist/katex.min.css'; // KaTeX styling for LaTeX rendering
 import { useAppContext } from './AppContext';
+import { useNavigate } from "react-router-dom"; 
 
 const CustomizedLesson = () => {
     const { customizedCourse } = useAppContext();
-
+    const navigate = useNavigate();
+    const handleRedirect = () => {
+        navigate("/customized-qcm"); 
+    };
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
             <h1 className="text-2xl font-bold mb-6 text-center">Votre cours personnalisé</h1>
@@ -44,20 +48,12 @@ const CustomizedLesson = () => {
                     />
                 </div>
             ))}
-            {/* <button
-                    onClick={handleSubmit}
-                    disabled={!submitted && selectedAnswers.some(section =>
-                        section.answers.some(answer => answer === null)
-                    )}
-                    className={`w-full py-3 rounded text-white font-bold transition-colors 
-            ${!submitted && selectedAnswers.some(section =>
-                        section.answers.some(answer => answer === null)
-                    )
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'}`}
+            <button
+                    onClick = {handleRedirect}
+                    className={`w-full py-3 rounded text-white font-bold transition-colors bg-blue-600 hover:bg-blue-700 active:bg-blue-800`}
                 >
-                    {submitLabel}
-                </button> */}
+                    Mark as read
+                </button>
         </div>
     );
 };

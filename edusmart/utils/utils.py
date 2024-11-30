@@ -266,29 +266,6 @@ def generate_customized_cours(general_qcm_submition):
     # cn.level_mapping[meta["level"]]
 
 
-def generate_customized_qcm(general_qcm_submition):
-    """
-    
-    """
-
-    meta =  mapping_front_back_meta_form(general_qcm_submition["meta"])
-    data = {"data":[]}
-    full_path_exos = cv.ROOT_DATABASE_PATH + meta["level"] + "/" + meta["year"] + "/" + meta["branch"] + "/" + meta["subject"] + "/" + meta["lesson"]
-    lacunes = compare_answers(general_qcm_submition)
-    for sous_cours_name in lacunes.items():
-        
-        example_exos = get_random_exo_examples_from_list(full_path_exos + "/exercices/", sim_sous_cours[sous_cours_name])
-        
-        
-        
-        prompt = pmt.PROMPT_QCM_GENERAL_WITH_LESSON_SCI.format(num_questions,f"{cn.level_mapping[level]} {cn.year_mapping[year]} {cn.branch_mapping[branch]} Maroc", cn.subject_mapping[subject], cn.lesson_mapping[lesson], difficulty, sous_cours,example_exos)
-        response = generate_from_prompt_json(prompt)
-        quizz = json.loads(response)["data"]
-        sous_cours_quizz = {"sous_cours_name": sous_cours_name, "content": quizz}
-        data["data"].append(sous_cours_quizz)
-    return data
-
-
 def generate_customized_report(general_qcm_submition):
     """
     """
@@ -321,6 +298,32 @@ def generate_customized_report(general_qcm_submition):
     except Exception as e:
         # Handle errors gracefully and provide useful feedback
         return {"error": str(e)}
+    
+
+def generate_customized_qcm(general_qcm_submition):
+    """
+    
+    """
+
+    meta =  mapping_front_back_meta_form(general_qcm_submition["meta"])
+    data = {"data":[]}
+    full_path_exos = cv.ROOT_DATABASE_PATH + meta["level"] + "/" + meta["year"] + "/" + meta["branch"] + "/" + meta["subject"] + "/" + meta["lesson"]
+    lacunes = compare_answers(general_qcm_submition)
+    for sous_cours_name in lacunes.items():
+        
+        example_exos = get_random_exo_examples_from_list(full_path_exos + "/exercices/", sim_sous_cours[sous_cours_name])
+        
+        
+        
+        prompt = pmt.PROMPT_QCM_GENERAL_WITH_LESSON_SCI.format(num_questions,f"{cn.level_mapping[level]} {cn.year_mapping[year]} {cn.branch_mapping[branch]} Maroc", cn.subject_mapping[subject], cn.lesson_mapping[lesson], difficulty, sous_cours,example_exos)
+        response = generate_from_prompt_json(prompt)
+        quizz = json.loads(response)["data"]
+        sous_cours_quizz = {"sous_cours_name": sous_cours_name, "content": quizz}
+        data["data"].append(sous_cours_quizz)
+    return data
+
+
+
 
 
     

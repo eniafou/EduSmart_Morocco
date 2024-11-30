@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom"; // Assuming react-router-dom is 
 
 const QCMApp = () => {
     const { formData, qcmData, setCustomizedCourse } = useAppContext(); // Assuming `setCustomizedCourse` is part of AppContext
+    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     if (!qcmData || qcmData.length === 0) {
@@ -30,9 +31,9 @@ const QCMApp = () => {
 
     const handleSubmit = async () => {
         setSubmitted(true);
-
+        setLoading(true);
         try {
-            const response = await axios.post('http://127.0.0.1:5000/submit', {
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/submit`, {
                 answers: selectedAnswers,
                 qcm: qcmData,
                 meta: formData,
@@ -44,6 +45,8 @@ const QCMApp = () => {
             setSubmitLabel("Get your customized course");
         } catch (error) {
             console.error('Error submitting answers:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -59,7 +62,7 @@ const QCMApp = () => {
     return (
         <MathJaxContext config={config}>
             <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
-                <h1 className="text-2xl font-bold mb-6 text-center">Mathematics QCM</h1>
+                <h1 className="text-2xl font-bold mb-6 text-center">QCM général</h1>
 
                 {qcmData.map((section, sectionIndex) => (
                     <div key={sectionIndex} className="mb-8">
@@ -113,20 +116,48 @@ const QCMApp = () => {
                     </div>
                 ))}
 
-                <button
-                    onClick={submitted ? handleRedirect : handleSubmit}
-                    disabled={!submitted && selectedAnswers.some(section =>
-                        section.answers.some(answer => answer === null)
-                    )}
-                    className={`w-full py-3 rounded text-white font-bold transition-colors 
-            ${!submitted && selectedAnswers.some(section =>
-                        section.answers.some(answer => answer === null)
-                    )
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'}`}
-                >
-                    {submitLabel}
-                </button>
+<button
+  onClick={submitted ? handleRedirect : handleSubmit}
+  disabled={(!submitted &&
+    selectedAnswers.some(section =>
+      section.answers.some(answer => answer === null)
+    )) || loading}
+  className={`w-full py-3 rounded text-white font-bold transition-colors flex justify-center items-center
+    ${(!submitted &&
+      selectedAnswers.some(section =>
+        section.answers.some(answer => answer === null)
+      )) || loading
+        ? 'bg-gray-400 cursor-not-allowed'
+        : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'}`}
+>
+  {loading ? (
+    <div className="flex items-center justify-center">
+      <svg
+        className="animate-spin h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"
+        ></path>
+      </svg>
+      <span className="ml-2">Loading...</span>
+    </div>
+  ) : (
+    submitLabel
+  )}
+</button>
             </div>
         </MathJaxContext>
     );
