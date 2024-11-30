@@ -10,14 +10,31 @@ import json
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[0]))
-
+import openai
 import constants.values as cv
 import constants.prompts as pmt
 import constants.names as cn
 
 load_dotenv()
 client = OpenAI()
+def get_embedding(text, model="text-embedding-ada-002"):
+    """
+    Function to get the embedding for a given text using OpenAI's API.
 
+    Args:
+        text (str): The text to embed.
+        model (str): The model to use for embedding (e.g., "text-embedding-ada-002").
+
+    Returns:
+        list: A list containing the embedding vector.
+    """
+    
+    response = openai.Embedding.create(
+        model=model,
+        input=text
+    )
+    embedding = response['data'][0]['embedding']
+    return embedding
 def load_embeddings(file_path):
     """
     Load embeddings from a pickle file.
@@ -28,8 +45,6 @@ def load_embeddings(file_path):
     except FileNotFoundError:
         print(f"Error: File not found at {file_path}")
         return {}
-
-
 def cosine_similarity(vec1, vec2):
     """
     Calculate the cosine similarity between two vectors.
@@ -62,6 +77,62 @@ def get_similar_exo_cours(level, year, branch, subject, lesson):
         top_similar = sorted(similarities, key=lambda x: x[1], reverse=True)[:cv.NUM_SIMILARITY_EXO]
         sim_sous_cours[sous_cours_name] = [name for name, _ in top_similar]
     return sim_sous_cours  
+
+def get_similar_exo_qcm(level, year, branch, subject, lesson, wrong_answers):
+    """
+    Create a dictionary of similar exercises for each sub-course in the lesson.
+    The keys are the names of the sub-courses, and the values are lists of names of similar exercises.
+    """
+    # Construct the full path to the embedding data file
+    full_path_exo_txt = f"{cv.ROOT_DATABASE_PATH}{level}/{year}/{branch}/{subject}/{lesson}{cv.EXO_PATH_EMBEDDING_SUFFIX}"
+
+    # Load precomputed embeddings for exercises
+    try:
+        exo_embeddings = load_embeddings(full_path_exo_txt)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Embedding file not found: {full_path_exo_txt}")
+    except Exception as e:
+        raise RuntimeError(f"An error occurred while loading embeddings: {e}")
+
+    # Initialize a dictionary to store similar exercises for each course with wrong answers
+    sim_exo_for_wrong_qcm = {}
+
+    # Loop over each course with wrong answers
+    for course in wrong_answers:
+        # Ensure the course has the required 'question' field and it is not empty
+        questions = course.get('question')
+        if not questions:
+            continue  # Skip courses with missing or empty 'question'
+
+        # Prepare the question text by joining all parts into one string
+        question_text = '\n'.join(questions)
+
+        # Compute the embedding for the question
+        try:
+            questions_embedded = get_embedding(question_text)
+        except Exception as e:
+            raise RuntimeError(f"Error while embedding question for {course.get('sub_course_name', 'unknown_sub_course')}: {e}")
+
+        # Calculate cosine similarities between the question embedding and all exercise embeddings
+        try:
+            similarities = [
+                (exo_name, cosine_similarity(questions_embedded, exo_embedding))
+                for exo_name, exo_embedding in exo_embeddings.items()
+            ]
+        except Exception as e:
+            raise RuntimeError(f"Error calculating cosine similarities: {e}")
+
+        # Sort by similarity in descending order and take the top N similar exercises
+        top_similar = sorted(similarities, key=lambda x: x[1], reverse=True)[:cv.NUM_SIMILARITY_EXO]
+
+        # Store the result in the dictionary with the sub-course name as the key
+        sub_course_name = course.get('sub_course_name', 'unknown_sub_course')
+        sim_exo_for_wrong_qcm[sub_course_name] = {
+            "questions": question_text,
+            "sim_exos": [name for name, _ in top_similar]
+        }
+
+    return sim_exo_for_wrong_qcm
 
 
 def generate_from_prompt_json(prompt):
