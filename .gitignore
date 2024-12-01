@@ -1,4 +1,4 @@
-/edusmart/edu-env
+/edu-env
 .env
 graveyard.py
 
@@ -7,9 +7,6 @@ graveyard.py
 *.pyo
 __pycache__/
 *.pyd
-
-# Node
-node_modules/
 
 # Jupyter Notebook
 .ipynb_checkpoints/

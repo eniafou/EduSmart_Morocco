@@ -43,4 +43,4 @@ def create_general_qcm():
     return jsonify(qcm_data["data"])
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
