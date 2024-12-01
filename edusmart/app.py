@@ -8,8 +8,15 @@ CORS(app)  # Enable Cross-Origin Resource Sharing
 @app.route('/submit', methods=['POST'])
 def submit_answers():
     data = request.json
-    data = generate_customized_cours(data)
-    return jsonify(data)
+    out = {}
+    report = generate_customized_report(data)
+    cours = generate_customized_cours(data)["data"]
+    custom_qcm = generate_customized_qcm(data)["data"]
+    
+    out["cours"] = cours
+    out["report"] = report 
+    out["custom_qcm"] = custom_qcm
+    return jsonify(out)
 
 
 

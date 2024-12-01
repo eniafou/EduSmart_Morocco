@@ -25,3 +25,8 @@ export type QCMData = Array<{
     sub_title: string;
     content: string;
 }
+
+export interface Report {
+  analyse_des_lacunes_par_sous_cours: Array<any>;
+  conclusion: string;
+}

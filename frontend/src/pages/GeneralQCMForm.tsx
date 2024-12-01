@@ -3,6 +3,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAppContext } from "./AppContext";
 import { Level, Difficulty, FormData } from "../types/types"
+import { levels, years, branches, subjects, difficulties, lessons} from "../types/LessonsMapping"
+
+const defaultFormData = {
+  level: ["Lycée"],
+  year: ["1ère Bac"],
+  branch: ["Sciences Mathématiques"],
+  subject: ["Mathématiques"],
+  lesson: ["Notion de logique"],
+};
 
 const stepToName: { [key: number]: string } = {
   1: "Niveau scolaire:",
@@ -14,34 +23,7 @@ const stepToName: { [key: number]: string } = {
   7: "Nombre de questions:",
 };
 
-const levels: Level[] = ["Lycée", "Collège", "Primaire"];
-const years: Record<Level, string[]> = {
-  Lycée: ["Tronc Commun", "1ère Bac", "2ème Bac"],
-  Collège: ["1ère année", "2ère année", "3ère année"],
-  Primaire: ["1ère année", "2ère année", "3ère année","4ère année", "5ère année", "6ère année"],
-};
-const branches: Record<Level, Record<string, string[]>> = {
-  Lycée: {
-    "1ère Bac": ["Sciences Mathématiques", "Sciences Expérimentales","Sciences Économiques et Gestion"],
-    "2ème Bac": ["Sciences Mathématiques A", "Sciences Mathématiques B", "Sciences Physiques"],
-    "Tronc Commun": ["Sciences","Technologies", "Lettres et Sciences Humaines"],
-  },
-  Collège: {
-    "1ère année": ["Commun"],
-    "2ère année": ["Commun"],
-    "3ère année": ["Commun"],
-  },
-  Primaire: {
-    "1ère année": ["Commun"],
-    "2ère année": ["Commun"],
-    "3ère année": ["Commun"],
-    "4ère année": ["Commun"],
-    "5ère année": ["Commun"],
-    "6ère année": ["Commun"],
-  },
-};
 
-const difficulties: Difficulty[] = ["Facile", "Moyen", "Difficile"];
 
 const GeneralQCMForm = () => {
   const navigate = useNavigate();
@@ -80,7 +62,6 @@ const GeneralQCMForm = () => {
       case 1:
         return (
           <div>
-            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
             <label className="block text-lg font-semibold">Quel niveau d'enseignement prenez-vous en charge ?</label>
             <select
               className="w-full mt-2 p-2 border rounded"
@@ -91,7 +72,7 @@ const GeneralQCMForm = () => {
                 Choisir le niveau scolaire
               </option>
               {levels.map((level) => (
-                <option key={level} value={level}>
+                <option key={level} value={level} disabled={!defaultFormData.level.includes(level)} >
                   {level}
                 </option>
               ))}
@@ -101,7 +82,6 @@ const GeneralQCMForm = () => {
       case 2:
         return (
           <div>
-            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
             <label className="block text-lg font-semibold">Quelle classe enseignez-vous actuellement ? </label>
             <select
               className="w-full mt-2 p-2 border rounded"
@@ -110,11 +90,11 @@ const GeneralQCMForm = () => {
               disabled={!formData.level}
             >
               <option value="" disabled>
-                Choose Year
+              Choisir le classe
               </option>
               {formData.level &&
                 years[formData.level].map((year) => (
-                  <option key={year} value={year}>
+                  <option key={year} value={year} disabled={!defaultFormData.year.includes(year)}>
                     {year}
                   </option>
                 ))}
@@ -124,7 +104,6 @@ const GeneralQCMForm = () => {
       case 3:
         return (
           <div>
-            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
             <label className="block text-lg font-semibold">Quelle filière enseignez-vous ?</label>
             <select
               className="w-full mt-2 p-2 border rounded"
@@ -133,12 +112,12 @@ const GeneralQCMForm = () => {
               disabled={!formData.level || !formData.year}
             >
               <option value="" disabled>
-                Choose Branch
+                Choisir la filière
               </option>
               {formData.level &&
                 formData.year &&
                 branches[formData.level][formData.year]?.map((branch) => (
-                  <option key={branch} value={branch}>
+                  <option key={branch} value={branch} disabled={!defaultFormData.branch.includes(branch)}>
                     {branch}
                   </option>
                 ))}
@@ -148,29 +127,50 @@ const GeneralQCMForm = () => {
       case 4:
         return (
           <div>
-            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
             <label className="block text-lg font-semibold">Quelle matière enseignez-vous ?</label>
-            <input
-              type="text"
+            <select
               className="w-full mt-2 p-2 border rounded"
-              placeholder="Enter subject"
               value={formData.subject}
               onChange={(e) => handleChange("subject", e.target.value)}
-            />
+              disabled={!formData.level || !formData.year || !formData.branch}
+            >
+              <option value="" disabled>
+                Choisir la matière
+              </option>
+              {formData.level &&
+                formData.year &&
+                formData.branch &&
+                subjects[`${formData.level}-${formData.year}-${formData.branch}`]?.map((subject) => (
+                  <option key={subject} value={subject} disabled={!defaultFormData.subject.includes(subject)}>
+                    {subject}
+                  </option>
+                ))}
+            </select>
           </div>
         );
       case 5:
         return (
           <div>
-            <label className="block text-lg text-red-500">Please for this demo, don't change the default values.</label>
             <label className="block text-lg font-semibold">Quelle cours enseignez-vous ?</label>
-            <input
-              type="text"
+            <select
               className="w-full mt-2 p-2 border rounded"
-              placeholder="Enter lesson"
               value={formData.lesson}
               onChange={(e) => handleChange("lesson", e.target.value)}
-            />
+              disabled={!formData.level || !formData.year || !formData.branch || !formData.subject}
+            >
+              <option value="" disabled>
+                Choisir le cours
+              </option>
+              {formData.level &&
+                formData.year &&
+                formData.branch &&
+                formData.subject &&
+                lessons[`${formData.level}-${formData.year}-${formData.branch}-${formData.subject}`]?.map((lesson) => (
+                  <option key={lesson} value={lesson} disabled={!defaultFormData.lesson.includes(lesson)}>
+                    {lesson}
+                  </option>
+                ))}
+            </select>
           </div>
         );
       case 6:
@@ -185,7 +185,7 @@ const GeneralQCMForm = () => {
               }
             >
               <option value="" disabled>
-                Choose Difficulty
+                Choisir le niveau de difficulté
               </option>
               {difficulties.map((difficulty) => (
                 <option key={difficulty} value={difficulty}>
@@ -208,11 +208,11 @@ const GeneralQCMForm = () => {
               onChange={(e) =>
                 handleChange(
                   "num_questions",
-                  Math.min(Math.max(+e.target.value, 1), 10)
+                  Math.min(Math.max(+e.target.value, 1), 5)
                 )
               }
               min={1}
-              max={10}
+              max={5}
             />
           </div>
         );
@@ -243,7 +243,7 @@ const GeneralQCMForm = () => {
             disabled={step === 1}
             onClick={handlePrev}
           >
-            &larr; Previous
+            &larr; Précédent
           </button>
           {step === 7 ? (
             <button
@@ -276,7 +276,7 @@ const GeneralQCMForm = () => {
                       d="M4 12a8 8 0 018-8v8H4z"
                     ></path>
                   </svg>
-                  Loading...
+                  Chargement...
                 </div>
               ) : (
                 "Submit"
@@ -290,7 +290,7 @@ const GeneralQCMForm = () => {
                 (step === 2 && !formData.year) || (step === 3 && !formData.branch.length)
               }
             >
-              Next &rarr;
+              Suivant &rarr;
             </button>
           )}
         </div>

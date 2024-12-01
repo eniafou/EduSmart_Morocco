@@ -5,7 +5,7 @@ import { useAppContext } from "./AppContext";
 import { useNavigate } from "react-router-dom"; // Assuming react-router-dom is being used for navigation
 
 const QCMApp = () => {
-    const { formData, qcmData, setCustomizedCourse } = useAppContext(); // Assuming `setCustomizedCourse` is part of AppContext
+    const { formData, qcmData, setCustomizedCourse, setCustomQcmData, setReport } = useAppContext(); // Assuming `setCustomizedCourse` is part of AppContext
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ const QCMApp = () => {
     );
 
     const [submitted, setSubmitted] = useState(false);
-    const [submitLabel, setSubmitLabel] = useState("Submit Answers");
+    const [submitLabel, setSubmitLabel] = useState("Envoyer les réponses");
 
     const handleAnswerSelect = (sectionIndex: number, questionIndex: number, optionIndex: number) => {
         const newSelectedAnswers = [...selectedAnswers];
@@ -40,9 +40,10 @@ const QCMApp = () => {
             });
 
             // Set the customized course data in the app context
-            console.log(response.data["data"])
-            setCustomizedCourse(response.data["data"]);
-            setSubmitLabel("Get your customized course");
+            setCustomizedCourse(response.data["cours"]);
+            setCustomQcmData(response.data["custom_qcm"]);
+            setReport(response.data["report"]);
+            setSubmitLabel("Obtenez votre rapport d'évaluation");
         } catch (error) {
             console.error('Error submitting answers:', error);
         } finally {
@@ -51,7 +52,7 @@ const QCMApp = () => {
     };
 
     const handleRedirect = () => {
-        navigate("/customized-course"); // Redirect to the new page
+        navigate("/report"); // Redirect to the new page
     };
 
     const config = {
@@ -61,12 +62,15 @@ const QCMApp = () => {
 
     return (
         <MathJaxContext config={config}>
-            <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
-                <h1 className="text-2xl font-bold mb-6 text-center">QCM général</h1>
+            <div
+      className="min-h-screen bg-gradient-to-br from-blue-100 to-white flex justify-center items-center"
+    >
+            <div className="max-w-3xl mx-auto my-6 p-6 bg-white shadow-md rounded-lg">
+                <h1 className="text-3xl font-bold mb-6 text-center">QCM Général</h1>
 
                 {qcmData.map((section, sectionIndex) => (
                     <div key={sectionIndex} className="mb-8">
-                        <h2 className="text-xl font-bold mb-4">{section.sous_cours_name}</h2>
+                        <h1 className="text-xl font-bold mb-4">{section.sous_cours_name}</h1>
 
                         {section.content.map((item, questionIndex) => {
                             const userAnswer = selectedAnswers[sectionIndex].answers[questionIndex];
@@ -152,13 +156,13 @@ const QCMApp = () => {
           d="M4 12a8 8 0 018-8v8H4z"
         ></path>
       </svg>
-      <span className="ml-2">Loading...</span>
+      <span className="ml-2">Chargement en cours (cela prendra une minute)...</span>
     </div>
   ) : (
     submitLabel
   )}
 </button>
-            </div>
+            </div></div>
         </MathJaxContext>
     );
 };

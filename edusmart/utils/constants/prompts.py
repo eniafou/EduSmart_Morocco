@@ -107,10 +107,10 @@ Détails fournis :
 """
 
 
-PROP_GEN_REPPORT_PROF = """
+PROMPT_REPORT_GENERATION = """
 Rédige un rapport synthétique et structuré destiné à un enseignant pour analyser les lacunes d'un élève dans un test QCM.
 
-### Instructions :
+Instructions :
 1. L'entrée sera une liste d'objets, où chaque objet contient :
    - Le nom d'un sous-cours ("sous_cours_name").
    - Une liste des questions incorrectes associées ("question").
@@ -119,27 +119,25 @@ Rédige un rapport synthétique et structuré destiné à un enseignant pour ana
 4. Ajoute une section indiquant, pour chaque sous-cours, le **nombre de questions incorrectes**.
 5. Rédige une conclusion globale mentionnant les domaines nécessitant une attention particulière, avec des recommandations pour améliorer la compréhension de l'élève.
 
-### details de l'entrée :
-[
-{}
-]
 
-### Format attendu pour la sortie :
+
+Votre réponse doit être en format JSON avec le champs ci-dessous :  
 {{
   "analyse_des_lacunes_par_sous_cours": [
     {{
       "sous_cours_name": "Nom du sous-cours",
-      "analyse": "Résumé des lacunes conceptuelles associées à ce sous-cours."
+      "analyse": "Résumé des lacunes conceptuelles associées à ce sous-cours.",
+      "nombre_questions_incorrectes_par": "Nombre de questions incorrectes"
     }},
     ...
   ],
-  "nombre_questions_incorrectes_par_sous_cours": {{
-    "Nom du sous-cours 1": "Nombre de questions incorrectes",
-    "Nom du sous-cours 2": "Nombre de questions incorrectes",
-    ...
-  }},
   "conclusion": "Synthèse globale des domaines nécessitant une attention particulière et recommandations pour progresser."
 }}
+
+Details de l'entrée :
+[
+{}
+]
 """
 
 
@@ -186,9 +184,3 @@ Veuillez noter que les exemples fournis ne doivent pas être suivis exactement, 
 Pour générer les questions, vous devez prioriser les réponses incorrectes et vous appuyer sur les exercices similaires fournis.
 """
 
-
-"""
-
-- Veillez à une gestion correcte de la syntaxe LaTeX, et notons que ce latex va etre le input pour une fonction qui genere un ficier HTML  ,notamment pour les expressions mathématiques, les sauts de ligne et l’échappement des caractères spéciaux.
-
-"""
