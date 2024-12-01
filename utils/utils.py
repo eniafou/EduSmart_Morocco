@@ -248,7 +248,7 @@ def generate_customized_cours(general_qcm_submition):
     set_exo = get_similar_exo_qcm(meta["level"], meta["year"], meta["branch"], meta["subject"], meta["lesson"], lacunes)
     for item in lacunes:
         sous_cours = load_sous_cours(full_path_cours + "/cours/" + item["sous_cours_name"] + ".txt")
-        prompt = pmt.PROMPT_COURS_GENERATION.format(f"{raw_meta["level"]} {raw_meta["year"]} {raw_meta["branch"]} Maroc", raw_meta["subject"], raw_meta["lesson"],sous_cours,item["question"])
+        prompt = pmt.PROMPT_COURS_GENERATION.format(f"{raw_meta['level']} {raw_meta['year']} {raw_meta['branch']} Maroc", raw_meta["subject"], raw_meta["lesson"],sous_cours,item["question"])
         response = generate_from_prompt_json(prompt)
         content = json.loads(response)["content"]
         sous_proposed_cours = {"sub_title": item["sous_cours_name"], "content": content}
@@ -269,7 +269,7 @@ def generate_customized_qcm(general_qcm_submition):
         incorrect_questions = sim_qcm_set[sous_cours_name]["questions"]
         exos_sim_list = sim_qcm_set[sous_cours_name]["sim_exos"]
         exos_sim = get_random_exo_examples_from_list(full_path_exos + "/exercices/", exos_sim_list)
-        prompt = pmt.PROMPT_QCM_PERSONILEZED.format(meta["num_questions"],f"{raw_meta["level"]} {raw_meta["year"]} {raw_meta["branch"]} Maroc", raw_meta["subject"], raw_meta["lesson"], raw_meta["difficulty"], incorrect_questions,exos_sim)
+        prompt = pmt.PROMPT_QCM_PERSONILEZED.format(meta["num_questions"],f"{raw_meta['level']} {raw_meta['year']} {raw_meta['branch']} Maroc", raw_meta["subject"], raw_meta["lesson"], raw_meta["difficulty"], incorrect_questions,exos_sim)
         response = generate_from_prompt_json(prompt)
         quizz = json.loads(response)["data"]
         sous_cours_quizz = {"sous_cours_name": sous_cours_name, "content": quizz}
