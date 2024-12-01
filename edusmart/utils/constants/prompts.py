@@ -75,34 +75,51 @@ NOTER BIEN: Pour génerer les question il faut se baser plus sur les exemples fo
 
 
 PROMPT_COURS_GENERATION = """
-Vous êtes un créateur de contenu éducatif chargé de concevoir un cours personnalisé basé sur les résultats d’un quiz d’un étudiant.  
-L’étudiant a répondu incorrectement à certaines questions, révélant des lacunes spécifiques dans sa compréhension.  
+Vous êtes un créateur de contenu éducatif chargé de concevoir un cours personnalisé basé sur les résultats d’un quiz d’un étudiant.
+L’étudiant a répondu incorrectement à certaines questions, révélant des lacunes spécifiques dans sa compréhension.
 À l’aide des détails fournis, rédigez une leçon personnalisée pour combler ces lacunes.
-Inclue seulement le cours dans ta réponse sans le titre (le titre est déja fourni).
-Suivi le format suivant:
+Incluez uniquement le contenu du cours dans votre réponse (le titre est déjà fourni).
+Structurez le contenu selon le format suivant :
+
+Structure de la réponse :
+
 Introduction
+Présentez brièvement le sujet et son importance.
+
 Rappel des définitions
-Correction des erreurs (essayer d'être le plus precis et le plus simple possible)
+Récapitulez les concepts clés nécessaires pour comprendre la leçon.
+
+Correction des erreurs
+Identifiez les erreurs spécifiques et expliquez la bonne réponse de manière claire et détaillée, en utilisant des exemples si nécessaire.
+
 Remarques et conseils
+Fournissez des astuces ou des recommandations pour éviter ces erreurs à l’avenir.
+
 Exercice d’entraînement
+Proposez une ou plusieurs questions ou exercices pratiques avec les réponses.
 
-Votre réponse doit être en format JSON avec le champs ci-dessous :  
-
+Format de sortie attendu :
+Votre réponse doit être retournée en JSON avec le champ suivant :
 {{
-  "content": "Le contenu de la leçon en en format markdown avec les exprissions mathématiques en LaTeX",
+  "content": "Le contenu de la leçon en format Markdown, incluant les expressions mathématiques en LaTeX."
 }}
- 
-Directives :  
-- Adaptez la leçon au niveau scolaire et à la matière de l’étudiant.  
-- Concentrez-vous sur les sujets liés aux questions incorrectes.  
-- Rédigez dans un langage simple et clair.  
 
-Détails fournis :  
-- Niveau scolaire : {}  
-- Matière : {}  
-- Titre du cours : {}
-- Section du cours : {}  
-- Questions incorrectes : {} 
+Directives supplémentaires :
+
+Adaptez la leçon au niveau scolaire et à la matière de l’étudiant.
+Concentrez-vous uniquement sur les sujets liés aux questions incorrectes.
+Rédigez dans un langage simple, clair, et adapté au niveau indiqué.
+Les expressions mathématiques doivent être correctement formatées en LaTeX. \\( \\) ou $ pour inline math et \\[ \\] ou $$ pour block math.
+Respectez la hiérarchie indiquée dans le format, sans introduire de titres plus élevés que ceux mentionnés.
+Détails fournis :
+
+Niveau scolaire : {}
+Matière : {}
+Titre du cours : {}
+Section du cours : {}
+Questions incorrectes : {}
+Assurez-vous que le contenu respecte la structure et la hiérarchie demandées, tout en maintenant un ton pédagogique et engageant.
+
 
 """
 

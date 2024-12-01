@@ -146,7 +146,7 @@ def generate_from_prompt_json(prompt):
             {"role": "user", "content": prompt}
         ],
         response_format = { "type": "json_object" },
-        temperature = 1
+        temperature = cv.TEMPERATURE
     )
     return completion.choices[0].message.content
 

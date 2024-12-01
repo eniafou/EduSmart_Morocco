@@ -6,5 +6,6 @@ ROOT_DATABASE_PATH = "./database/"
 OPENAI_MODEL = "gpt-4o-mini"
 NUM_SIMILARITY_EXO = 15
 NUM_PRMPT_EXO = 2 # must be less or equal to NUM_SIMILAR_EXO
+TEMPERATURE = 1
 
 
