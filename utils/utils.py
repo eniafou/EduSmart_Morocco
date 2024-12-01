@@ -9,8 +9,8 @@ import numpy as np
 import json
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[0]))
 import openai
+sys.path.append(str(Path(__file__).resolve().parents[0]))
 import constants.values as cv
 import constants.prompts as pmt
 import constants.names as cn
